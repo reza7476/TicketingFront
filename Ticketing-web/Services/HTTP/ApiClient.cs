@@ -84,6 +84,7 @@ public class ApiClient
         TRequest request,
         CancellationToken cancellationToken = default)
     {
+        AddAuthorizationHeader();
         using var response = await _httpClient.PatchAsJsonAsync(
             url, request, _jsonOptions, cancellationToken);
 

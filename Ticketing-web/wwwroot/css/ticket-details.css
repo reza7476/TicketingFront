@@ -1,0 +1,272 @@
+﻿
+.ticket-details-page {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 24px 16px;
+    color: #1e293b;
+}
+
+.details-heading,
+.ticket-title-row,
+.reply-actions {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+}
+
+.details-heading {
+    margin-bottom: 24px;
+}
+
+    .details-heading h2,
+    .ticket-title-row h3 {
+        margin: 0 0 8px;
+    }
+
+    .details-heading p {
+        color: #64748b;
+        margin: 0;
+    }
+
+.details-card,
+.conversation-card,
+.reply-card {
+    background: #fff;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    padding: 24px;
+    margin-bottom: 20px;
+    box-shadow: 0 2px 8px rgba(15, 23, 42, 0.04);
+}
+
+.ticket-number {
+    color: #64748b;
+    font-size: 14px;
+}
+
+.ticket-description {
+    margin: 24px 0;
+    line-height: 1.9;
+    white-space: pre-wrap;
+}
+
+.ticket-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 32px;
+    border-top: 1px solid #e2e8f0;
+    padding-top: 20px;
+}
+
+    .ticket-meta div {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    .ticket-meta span {
+        color: #64748b;
+        font-size: 13px;
+    }
+
+.section-title {
+    font-size: 19px;
+    margin: 0 0 24px;
+}
+
+.message-row {
+    display: flex;
+    margin: 20px 0;
+}
+
+.user-row {
+    justify-content: flex-start;
+}
+
+.agent-row {
+    justify-content: flex-end;
+}
+
+.message-content {
+    width: min(75%, 760px);
+}
+
+.message-author {
+    font-size: 13px;
+    color: #64748b;
+    margin: 0 8px 6px;
+}
+
+.message-bubble {
+    padding: 16px;
+    border-radius: 12px;
+    line-height: 1.9;
+    overflow-wrap: anywhere;
+}
+
+    .message-bubble p {
+        margin: 0 0 10px;
+        white-space: pre-wrap;
+    }
+
+    .message-bubble time {
+        display: block;
+        font-size: 12px;
+        color: #64748b;
+    }
+
+.user-row .message-bubble {
+    background: #eff6ff;
+    border: 1px solid #dbeafe;
+}
+
+.agent-row .message-bubble {
+    background: #ecfdf5;
+    border: 1px solid #d1fae5;
+}
+
+.reply-textarea {
+    min-height: 140px;
+    resize: vertical;
+    line-height: 1.8;
+}
+
+.send-reply-button,
+.back-button {
+    display: inline-block;
+    padding: 10px 18px;
+    border-radius: 8px;
+    text-decoration: none;
+    font-weight: 600;
+}
+
+.send-reply-button {
+    border: none;
+    background: #2563eb;
+    color: white;
+    cursor: pointer;
+}
+
+    .send-reply-button:hover {
+        background: #1d4ed8;
+    }
+
+.back-button {
+    border: 1px solid #cbd5e1;
+    color: #334155;
+}
+
+.reply-actions {
+    justify-content: flex-start;
+    margin-top: 16px;
+}
+
+.reply-disabled,
+.no-replies {
+    padding: 16px;
+    background: #f1f5f9;
+    border-radius: 8px;
+    color: #475569;
+}
+
+.status,
+.priority {
+    display: inline-block;
+    padding: 5px 10px;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: 600;
+}
+
+    .status.open {
+        background: #dbeafe;
+        color: #1d4ed8;
+    }
+
+    .status.progress {
+        background: #fef3c7;
+        color: #92400e;
+    }
+
+    .status.answered {
+        background: #d1fae5;
+        color: #065f46;
+    }
+
+    .status.closed {
+        background: #e2e8f0;
+        color: #475569;
+    }
+
+    .priority.low {
+        background: #d1fae5;
+        color: #065f46;
+    }
+
+    .priority.medium {
+        background: #fef3c7;
+        color: #92400e;
+    }
+
+    .priority.high {
+        background: #fee2e2;
+        color: #b91c1c;
+    }
+
+
+.conversation {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.reply-item {
+    max-width: 80%;
+    padding: 14px;
+    border-radius: 12px;
+    overflow-wrap: anywhere;
+}
+
+.user-reply {
+    align-self: flex-start;
+    background-color: #f1f3f5;
+}
+
+.agent-reply {
+    align-self: flex-end;
+    background-color: #e2f3e8;
+}
+
+.reply-author {
+    font-weight: 600;
+    margin-bottom: 8px;
+}
+
+.reply-content {
+    white-space: pre-wrap;
+    margin-bottom: 8px;
+}
+
+
+@media (max-width: 768px) {
+    .details-heading,
+    .ticket-title-row {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+    .details-card,
+    .conversation-card,
+    .reply-card {
+        padding: 16px;
+    }
+
+    .message-content {
+        width: 95%;
+    }
+
+    .ticket-meta {
+        gap: 20px;
+    }
+}

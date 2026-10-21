@@ -13,6 +13,9 @@ public interface ITicketService : IService
     Task<ApiResultDto<GetAllDto<GetAllTicketsDto>>> GetClientTickets(
         int offset,
         int limit);
-
     Task<ApiResultDto<object>> Add(AddTicketDto dto);
+
+    Task<ApiResultDto<GetTicketDetailsDto>> GetDetailsForAgent(string id);
+    Task<ApiResultDto<object>> ChangeStatusIntoInProgress(ChangeTicketStatusByAgentDto dto);
+    Task <ApiResultDto<object>>ReplyToTicketByAgent(ReplyTicketDto dto);
 }

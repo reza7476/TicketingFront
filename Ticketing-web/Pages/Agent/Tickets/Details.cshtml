@@ -1,0 +1,113 @@
+﻿@page "{id}"
+@using Ticketing_web.EntityModels.Tickets
+@model Ticketing_web.Pages.Agent.Tickets.DetailsModel
+
+@{
+    Layout = "_Layout";
+    ViewData["Title"] = "جزئیات تیکت";
+}
+
+
+<div class="container py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h3>جزئیات تیکت</h3>
+
+        <span class="badge bg-secondary">
+            @Model.Ticket.Status
+        </span>
+    </div>
+
+    <div class="card mb-4">
+        <div class="card-body">
+            <h5>@Model.Ticket.Title</h5>
+
+            <p class="text-muted">
+                شماره تیکت: @Model.Ticket.Number
+            </p>
+
+            <p>@Model.Ticket.Content</p>
+
+            <hr />
+
+            <p>
+                <strong>ثبت‌کننده:</strong>
+                @Model.Ticket.AskedBy
+            </p>
+
+            <p>
+                <strong>اولویت:</strong>
+                @Model.Ticket.Priority
+            </p>
+
+            @if (Model.Ticket.Status == TicketStatus.Open)
+            {
+                <form method="post" asp-page-handler="Start">
+                    <input type="hidden" name="id"
+                           value="@Model.Ticket.Id" />
+
+                    <button type="submit" class="btn btn-primary">
+                        شروع بررسی
+                    </button>
+                </form>
+            }
+        </div>
+    </div>
+
+    <div class="card mb-4">
+        <div class="card-header">
+            مکالمات تیکت
+        </div>
+
+        <div class="card-body conversation">
+            @foreach (var reply in Model.Ticket.Replies)
+            {
+                <div class="reply-item mb-3
+                    @(reply.AgentReplied ? "agent-reply" : "user-reply")">
+
+                    <div class="reply-author">
+                        @(reply.AgentReplied ? "پشتیبان" : "کاربر")
+                    </div>
+
+                    <div class="reply-content">
+                        @reply.Content
+                    </div>
+
+                    <small class="text-muted">
+                        @reply.CreatedAt
+                    </small>
+                </div>
+            }
+        </div>
+    </div>
+
+    @if (Model.CanReply)
+    {
+        <div class="card">
+            <div class="card-header">ارسال پاسخ</div>
+
+            <div class="card-body">
+                <form method="post" asp-page-handler="Reply">
+                    <input type="hidden" name="id"
+                           value="@Model.Ticket.Id" />
+
+                    <div class="mb-3">
+                        <label for="replyContent"
+                               class="form-label">
+                            متن پاسخ
+                        </label>
+
+                        <textarea id="replyContent"
+                                  name="ReplyContent"
+                                  class="form-control"
+                                  rows="5"
+                                  required></textarea>
+                    </div>
+
+                    <button type="submit" class="btn btn-success">
+                        ارسال پاسخ
+                    </button>
+                </form>
+            </div>
+        </div>
+    }
+</div>
