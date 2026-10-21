@@ -1,0 +1,112 @@
+﻿@page
+@{
+    Layout = null;
+    ViewData["Title"] = "سامانه پشتیبانی تیکتینگ";
+}
+
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <title>@ViewData["Title"]</title>
+
+    <link rel="stylesheet" href="~/css/home.css" />
+</head>
+<body>
+
+    <header class="navbar">
+        <div class="brand">
+            <span class="brand-icon">T</span>
+            <span>Ticketing</span>
+        </div>
+
+        <a href="/Auth" class="nav-login">ورود</a>
+    </header>
+
+    <main class="hero">
+        <div class="hero-content">
+            <span class="eyebrow">سامانه پشتیبانی آنلاین</span>
+
+            <h1>
+                پشتیبانی آسان،
+                <br />
+                <span>با سیستم تیکتینگ</span>
+            </h1>
+
+            <p>
+                درخواست‌ها و مشکلات خود را به‌سادگی ثبت کنید،
+                پاسخ کارشناسان را پیگیری کنید و تمام مکاتبات خود را
+                در یک محیط منظم و یکپارچه در دسترس داشته باشید.
+            </p>
+
+            <a href="/Auth" class="login-button">
+                ورود به سامانه
+                <span>←</span>
+            </a>
+
+            <div class="hero-note">
+                <span class="check">✓</span>
+                پیگیری درخواست‌ها در یک محیط ساده و منظم
+            </div>
+        </div>
+
+        <div class="hero-visual">
+            <div class="visual-glow"></div>
+
+            <div class="ticket-card">
+                <div class="ticket-top">
+                    <div>
+                        <small>سامانه پشتیبانی</small>
+                        <h3>درخواست‌های شما</h3>
+                    </div>
+                    <div class="ticket-icon">✉</div>
+                </div>
+
+                <div class="ticket-item">
+                    <div class="ticket-symbol">01</div>
+                    <div class="ticket-info">
+                        <strong>ثبت درخواست</strong>
+                        <small>مشکل خود را توضیح دهید</small>
+                    </div>
+                    <span class="arrow">←</span>
+                </div>
+
+                <div class="ticket-item">
+                    <div class="ticket-symbol">02</div>
+                    <div class="ticket-info">
+                        <strong>بررسی توسط کارشناس</strong>
+                        <small>درخواست شما بررسی می‌شود</small>
+                    </div>
+                    <span class="arrow">←</span>
+                </div>
+
+                <div class="ticket-item">
+                    <div class="ticket-symbol">03</div>
+                    <div class="ticket-info">
+                        <strong>دریافت پاسخ</strong>
+                        <small>پاسخ را در پنل پیگیری کنید</small>
+                    </div>
+                    <span class="arrow">✓</span>
+                </div>
+
+                <div class="ticket-footer">
+                    <span class="online-dot"></span>
+                    پیگیری متمرکز درخواست‌ها
+                </div>
+            </div>
+
+            <div class="floating-badge">
+                <span>✓</span>
+                درخواست شما قابل پیگیری است
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        © سامانه تیکتینگ | تمامی حقوق محفوظ است.
+    </footer>
+
+</body>
+</html>

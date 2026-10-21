@@ -1,0 +1,127 @@
+﻿@using System.IdentityModel.Tokens.Jwt
+@using System.Security.Claims
+
+@{
+    var token = Context.Session.GetString("JwtToken");
+    string? role = null;
+
+    if (!string.IsNullOrWhiteSpace(token))
+    {
+        var handler = new JwtSecurityTokenHandler();
+
+        var jwtToken = handler.ReadJwtToken(token);
+
+        role = jwtToken.Claims
+             .FirstOrDefault(c => c.Type == ClaimTypes.Role)
+             ?.Value;
+    }
+}
+
+
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <title>@ViewData["Title"] - پنل مدیریت</title>
+
+    <link rel="stylesheet"
+          href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+
+    <link rel="stylesheet"
+          href="~/css/layout.css"
+          asp-append-version="true" />
+</head>
+<body>
+
+    <div class="admin-wrapper">
+
+        <!-- منوی کناری -->
+        <aside class="sidebar">
+            <div class="sidebar-brand">
+                <span class="brand-icon">T</span>
+                <span>Ticketing</span>
+            </div>
+
+            <div class="admin-profile">
+                <div class="profile-avatar">A</div>
+                <div>
+                    <strong>@role</strong>
+                    <small>@role</small>
+                </div>
+            </div>
+
+            <nav class="sidebar-menu">
+                <span class="menu-heading">مدیریت</span>
+
+                <a asp-page="/Admin/Index" class="menu-link">
+                    <span>▦</span>
+                    داشبورد
+                </a>
+                @if (role == "Agent")
+                {
+                    
+                <a asp-page="/Admin/Tickets/Index" class="menu-link">
+                    <span>✉</span>
+                    مدیریت تیکت‌ها
+                </a>
+
+                <a asp-page="/Admin/Users/Index" class="menu-link">
+                    <span>♙</span>
+                    مدیریت کاربران
+                </a>
+
+                <a asp-page="/Admin/Agents/Index" class="menu-link">
+                    <span>♧</span>
+                    کارشناسان
+                </a>
+                }
+
+                <span class="menu-heading">حساب کاربری</span>
+
+                <a asp-page="/Index" class="menu-link">
+                    <span>⌂</span>
+                    صفحه اصلی
+                </a>
+
+                <a href="/Account/Logout" class="menu-link logout-link">
+                    <span>↪</span>
+                    خروج
+                </a>
+            </nav>
+        </aside>
+
+        <!-- بخش اصلی -->
+        <div class="main-area">
+
+            <header class="topbar">
+                <div>
+                    <h5>@ViewData["Title"]</h5>
+                    <small>سامانه مدیریت تیکت‌ها</small>
+                </div>
+
+                <div class="topbar-user">
+                    <span class="status-dot"></span>
+                   @role
+                </div>
+            </header>
+
+            <main class="page-content">
+                @RenderBody()
+            </main>
+
+            <footer class="admin-footer">
+                سامانه تیکتینگ | پنل مدیریت
+            </footer>
+
+        </div>
+    </div>
+
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+
+    @await RenderSectionAsync("Scripts", required: false)
+
+</body>
+</html>
