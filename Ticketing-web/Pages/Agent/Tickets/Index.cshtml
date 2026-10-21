@@ -1,10 +1,183 @@
 ﻿@page
+@using Ticketing_web.EntityModels.Tickets
 @model Ticketing_web.Pages.Agent.Tickets.IndexModel
 @{
-    Layout = "_AdminLayout";
+    Layout = "_Layout";
+    ViewData["Title"] = "مدیریت تیکت‌ها";
 }
-<div>
-    <p>
-        لیست تیکت های پشتیبان
-    </p>
+
+
+<div class="tickets-page">
+
+    <div class="page-heading">
+        <div>
+            <h2>مدیریت تیکت‌ها</h2>
+            <p>مشاهده و پیگیری درخواست‌های کاربران</p>
+        </div>
+
+        <button type="button" class="refresh-button"
+                onclick="location.reload()">
+            ↻ بروزرسانی
+        </button>
+    </div>
+
+    <!-- آمار تیکت‌ها -->
+    <div class="ticket-stats">
+        <div class="stat-card">
+            <span>همه تیکت‌ها</span>
+            <strong>۱۲</strong>
+        </div>
+
+        <div class="stat-card">
+            <span>باز</span>
+            <strong class="text-open">۵</strong>
+        </div>
+
+        <div class="stat-card">
+            <span>در حال بررسی</span>
+            <strong class="text-progress">۳</strong>
+        </div>
+
+        <div class="stat-card">
+            <span>پاسخ داده شده</span>
+            <strong class="text-answered">۴</strong>
+        </div>
+    </div>
+
+    <!-- فیلتر تیکت‌ها -->
+    <div class="tickets-panel">
+
+        <div class="tickets-toolbar">
+            <h3>فهرست درخواست‌ها</h3>
+
+            <input type="text"
+                   id="ticketSearch"
+                   placeholder="جستجو در عنوان تیکت..." />
+        </div>
+
+        <div class="table-responsive">
+            <table class="tickets-table" id="ticketsTable">
+                <thead>
+                    <tr>
+                        <th>شماره</th>
+                        <th>عنوان تیکت</th>
+                        <th>کاربر</th>
+                        <th>اولویت</th>
+                        <th>تاریخ ثبت</th>
+                        <th>وضعیت</th>
+                        <th>عملیات</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+
+                    @foreach (var item in Model.Tickets.Data)
+                    {
+                        
+                    <tr>
+                        <td>@item.Number</td>
+                        <td>@item.Title</td>
+                        <td>@item.AskedBy</td>
+                        <td>
+                                <span class="priority @(item.Priority switch
+                                   {
+                                     Priority.Low=> "low",
+                                     Priority.Medium=> "medium",
+                                     Priority.High => "high",
+                                     _ => " "
+                                   })">
+                                    @item.Priority
+                                </span>
+                         </td>
+                        <td>@item.CreatedAt</td>
+                        <td>
+                                <span class="status @(item.Status switch
+                                   {
+                                     TicketStatus.Open => "open",
+                                     TicketStatus.InProgress => "progress",
+                                     TicketStatus.Answered => "answered",
+                                     TicketStatus.Closed => "closed",
+                                     _ => " "
+                                   })">
+                                    @item.Status
+                                </span>
+                            
+                        </td>
+                        <td>
+                            <a href="/Agent/Tickets/Details/1001"
+                               class="details-button">مشاهده</a>
+                        </td>
+                    </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+        <div class="d-flex justify-content-between align-items-center mt-3">
+
+            <span>
+                تعداد کل تیکت‌ها: @Model.Tickets.TotalElements
+            </span>
+
+            <div class="d-flex gap-2">
+
+                @if (Model.Tickets.CurrentPage > 0)
+                {
+                    <a class="btn btn-outline-primary"
+                       asp-page="./Index"
+                       asp-route-pageNumber="@(Model.Tickets.CurrentPage - 1)"
+                       >
+                        قبلی
+                    </a>
+                }
+
+                <span class="align-self-center">
+
+                    صفحه 
+                    
+                    @(Model.Tickets.CurrentPage+1 )
+                از 
+                @(Model.Tickets.TotalPages)
+                </span>
+
+                @if (Model.Tickets.CurrentPage + 1 < Model.Tickets.TotalPages)
+                {
+                    <a class="btn btn-outline-primary"
+                       asp-page="./Index"
+                       asp-route-pageNumber="@(Model.Tickets.CurrentPage + 1)"
+                       >
+                        بعدی
+                    </a>
+                }
+
+            </div>
+        </div>
+        <div id="emptyMessage" class="empty-message" hidden>
+            تیکتی با این عنوان پیدا نشد.
+        </div>
+
+    </div>
 </div>
+
+@section Scripts {
+    <script>
+        $("#ticketSearch").on("input", function () {
+            const searchText = $(this).val().trim().toLowerCase();
+            let visibleCount = 0;
+
+            $("#ticketsTable tbody tr").each(function () {
+                const title = $(this).find("td:nth-child(2)")
+                                    .text().toLowerCase();
+
+                const matches = title.includes(searchText);
+
+                $(this).toggle(matches);
+
+                if (matches) {
+                    visibleCount++;
+                }
+            });
+
+            $("#emptyMessage").prop("hidden", visibleCount > 0);
+        });
+    </script>
+}

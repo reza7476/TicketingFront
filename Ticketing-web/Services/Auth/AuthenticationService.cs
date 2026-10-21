@@ -21,7 +21,7 @@ public class AuthenticationService : IAuthService
             Password = dto.Password,
         };
 
-        return await _apiClient.PostAsync<LoginDto, GetTokenDto>(
+        return await _apiClient.PostAsync<LoginDto, GetTokenDto?>(
             "authentication/log-in",
             request);
     }

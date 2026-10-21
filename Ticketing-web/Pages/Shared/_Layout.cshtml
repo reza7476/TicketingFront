@@ -33,6 +33,9 @@
     <link rel="stylesheet"
           href="~/css/layout.css"
           asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/tickets.css"
+          asp-append-version="true" />
+
 </head>
 <body>
 
@@ -66,23 +69,23 @@
                     <span>▦</span>
                     داشبورد
                 </a>
-                @if (role ==SystemRole.Agent)
+                @if (role == SystemRole.Agent)
                 {
-                    
-                <a asp-page="/Agent/Tickets/Index" class="menu-link">
-                    <span>✉</span>
-                    تیکت‌ها
-                </a>
 
-                <a asp-page="/Admin/Users/Index" class="menu-link">
-                    <span>♙</span>
-                    مدیریت کاربران
-                </a>
+                    <a asp-page="/Agent/Tickets/Index" class="menu-link">
+                        <span>✉</span>
+                        تیکت‌ها
+                    </a>
 
-                <a asp-page="/Admin/Agents/Index" class="menu-link">
-                    <span>♧</span>
-                    کارشناسان
-                </a>
+                    <a asp-page="/Admin/Users/Index" class="menu-link">
+                        <span>♙</span>
+                        مدیریت کاربران
+                    </a>
+
+                    <a asp-page="/Admin/Agents/Index" class="menu-link">
+                        <span>♧</span>
+                        کارشناسان
+                    </a>
                 }
 
                 <span class="menu-heading">حساب کاربری</span>
@@ -110,7 +113,7 @@
 
                 <div class="topbar-user">
                     <span class="status-dot"></span>
-                   @role
+                    @role
                 </div>
             </header>
 

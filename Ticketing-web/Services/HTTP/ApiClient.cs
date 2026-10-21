@@ -9,15 +9,19 @@ namespace Ticketing_web.Services.Http;
 public class ApiClient
 {
     private readonly HttpClient _httpClient;
+    private readonly IHttpContextAccessor _httpContextAccessor;
 
     private readonly JsonSerializerOptions _jsonOptions = new()
     {
         PropertyNameCaseInsensitive = true
     };
 
-    public ApiClient(HttpClient httpClient)
+    public ApiClient(
+        HttpClient httpClient,
+        IHttpContextAccessor httpContextAccessor)
     {
         _httpClient = httpClient;
+        _httpContextAccessor = httpContextAccessor;
     }
 
     // GET: دریافت اطلاعات
@@ -25,6 +29,8 @@ public class ApiClient
         string url,
         CancellationToken cancellationToken = default)
     {
+        AddAuthorizationHeader();
+
         using var response = await _httpClient.GetAsync(
             url, cancellationToken);
 
@@ -97,7 +103,20 @@ public class ApiClient
 
     
 
+    private void AddAuthorizationHeader()
+    {
+        var token = _httpContextAccessor
+            .HttpContext?
+            .Session.GetString("JwtToken");
+        _httpClient.DefaultRequestHeaders.Authorization = null;
+        if (!string.IsNullOrWhiteSpace(token))
+        {
+            _httpClient.DefaultRequestHeaders.Authorization =
+                new System.Net.Http.Headers.AuthenticationHeaderValue(
+                    "Bearer", token);
+        }
 
+    }
 
 
 
