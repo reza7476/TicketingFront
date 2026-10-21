@@ -1,0 +1,82 @@
+﻿@page
+@model Ticketing_web.Pages.Clients.Tickets.AddModel
+@{
+    Layout = "_Layout";
+}
+
+
+<div class="tickets-page">
+
+    <div class="page-heading">
+        <div>
+            <h2>ایجاد تیکت جدید</h2>
+            <p>لطفاً اطلاعات درخواست خود را وارد کنید.</p>
+        </div>
+
+        <a asp-page="./Index" class="details-button">
+            بازگشت به فهرست
+        </a>
+    </div>
+
+    <div class="tickets-panel">
+
+        <form method="post">
+
+            <div asp-validation-summary="ModelOnly"
+                 class="text-danger"></div>
+
+            <div class="mb-3">
+                <label asp-for="Input.Title" class="form-label">
+                    عنوان تیکت
+                </label>
+
+                <input asp-for="Input.Title"
+                       class="form-control"
+                       placeholder="مثلاً مشکل ورود به حساب کاربری" />
+
+                <span asp-validation-for="Input.Title"
+                      class="text-danger"></span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="Input.Priority" class="form-label">
+                    اولویت
+                </label>
+
+                <select asp-for="Input.Priority"
+                        class="form-select">
+                    <option value="1">کم</option>
+                    <option value="2">متوسط</option>
+                    <option value="3">زیاد</option>
+                </select>
+
+                <span asp-validation-for="Input.Priority"
+                      class="text-danger"></span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="Input.Content" class="form-label">
+                    شرح درخواست
+                </label>
+
+                <textarea asp-for="Input.Content"
+                          class="form-control"
+                          rows="5"
+                          placeholder="مشکل خود را توضیح دهید..."></textarea>
+
+                <span asp-validation-for="Input.Content"
+                      class="text-danger"></span>
+            </div>
+
+            <button type="submit" class="add-ticket-button">
+                ثبت تیکت
+            </button>
+
+        </form>
+
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

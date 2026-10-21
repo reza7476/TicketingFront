@@ -44,6 +44,7 @@ public class ApiClient
         TRequest request,
         CancellationToken cancellationToken = default)
     {
+        AddAuthorizationHeader();
         using var response = await _httpClient.PostAsJsonAsync(
             url, request, _jsonOptions, cancellationToken);
 
@@ -56,6 +57,7 @@ public class ApiClient
     TRequest request,
     CancellationToken cancellationToken = default)
     {
+        AddAuthorizationHeader();
         using var response = await _httpClient.PostAsJsonAsync(
             url, request, _jsonOptions, cancellationToken);
 
@@ -153,7 +155,12 @@ public class ApiClient
 
             return result;
         }
-
+        if (typeof(TResponse) == typeof(string))
+        {
+            result.Data = (TResponse)(object)raw;
+            result.IsSuccess = true;
+            return result;
+        }
         // 3. بررسی اینکه آیا پاسخ در قالب ApiResultDto است؟
         try
         {
