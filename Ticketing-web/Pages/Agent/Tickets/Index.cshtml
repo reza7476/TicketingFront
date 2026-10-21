@@ -4,6 +4,7 @@
 @{
     Layout = "_Layout";
     ViewData["Title"] = "مدیریت تیکت‌ها";
+    var totalTickets = Model.Tickets.TotalElements;
 }
 
 
@@ -25,22 +26,7 @@
     <div class="ticket-stats">
         <div class="stat-card">
             <span>همه تیکت‌ها</span>
-            <strong>۱۲</strong>
-        </div>
-
-        <div class="stat-card">
-            <span>باز</span>
-            <strong class="text-open">۵</strong>
-        </div>
-
-        <div class="stat-card">
-            <span>در حال بررسی</span>
-            <strong class="text-progress">۳</strong>
-        </div>
-
-        <div class="stat-card">
-            <span>پاسخ داده شده</span>
-            <strong class="text-answered">۴</strong>
+            <strong>@Model.Tickets.TotalElements</strong>
         </div>
     </div>
 

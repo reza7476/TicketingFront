@@ -20,4 +20,12 @@ public class TicketService : ITicketService
             .GetAsync<GetAllDto<GetAllTicketsDto>>(
             $"tickets/get-all-for-agent?offset={offset}&limit={limit}");
     }
+
+    public  async Task<ApiResultDto<GetAllDto<GetAllTicketsDto>>>
+        GetClientTickets(int offset, int limit)
+    {
+        return await _apiClient
+           .GetAsync<GetAllDto<GetAllTicketsDto>>(
+           $"tickets/all-for-client?offset={offset}&limit={limit}");
+    }
 }

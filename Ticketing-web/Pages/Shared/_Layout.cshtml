@@ -87,6 +87,15 @@
                         کارشناسان
                     </a>
                 }
+                @if (role == SystemRole.Client)
+                {
+                    <a asp-page="/Clients/Tickets/Index" class="menu-link">
+                        <span>✉</span>
+                       تیکت‌های من
+                    </a>
+                }
+
+
 
                 <span class="menu-heading">حساب کاربری</span>
 

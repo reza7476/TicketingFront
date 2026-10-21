@@ -9,4 +9,8 @@ public interface ITicketService : IService
     Task<ApiResultDto<GetAllDto<GetAllTicketsDto>>> GetAgentTickets(
         int offset,
         int limit);
+    
+    Task<ApiResultDto<GetAllDto<GetAllTicketsDto>>> GetClientTickets(
+        int offset,
+        int limit);
 }
