@@ -13,4 +13,6 @@ public interface ITicketService : IService
     Task<ApiResultDto<GetAllDto<GetAllTicketsDto>>> GetClientTickets(
         int offset,
         int limit);
+
+    Task<ApiResultDto<object>> Add(AddTicketDto dto);
 }
