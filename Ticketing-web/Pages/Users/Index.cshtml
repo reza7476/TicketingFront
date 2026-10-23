@@ -1,0 +1,153 @@
+﻿
+@page
+@model Ticketing_web.Pages.Users.IndexModel
+
+@{
+    ViewData["Title"] = "فهرست کاربران";
+    Layout = "_Layout";
+}
+
+<div class="users-container" dir="rtl">
+
+    <div class="page-header">
+        <div>
+            <h2>مدیریت کاربران</h2>
+            <p>فهرست کاربران ثبت‌شده در سامانه</p>
+        </div>
+
+        <div class="users-count">
+            تعداد کاربران: @(Model.Users?.Data?.Count ?? 0)
+        </div>
+    </div>
+
+    <div class="users-toolbar">
+
+        <form method="get" class="filter-form">
+
+            <div class="search-box">
+                <label for="search">جستجو</label>
+                <input type="text"
+                       id="search"
+                       name="search"
+                       value="@Model.Search"
+                       placeholder="نام، نام خانوادگی یا موبایل" />
+            </div>
+
+            <div class="filter-group">
+                <label for="organization">سازمان</label>
+                <select id="organization" name="Organization">
+                    <option value="">همه سازمان‌ها</option>
+
+                    @foreach (var organ in Model.Organizations)
+                    {
+                        <option value="@organ.Name"
+                                selected="@(Model.Organization == organ.Name)">
+                            @organ.Name
+                        </option>
+                    }
+                </select>
+            </div>
+
+            <div class="filter-group">
+                <label for="role">نقش</label>
+                <select id="role" name="Role">
+                    <option value="">همه نقش‌ها</option>
+
+                    @foreach (var role in Model.Roles)
+                    {
+                        <option value="@role.Title"
+                                selected="@(Model.Role == role.Title)">
+                            @role.Title
+                        </option>
+                    }
+                </select>
+            </div>
+
+            <div class="filter-actions">
+                <button type="submit" class="search-button">
+                    اعمال فیلتر
+                </button>
+
+                <a asp-page="./Index" class="reset-button">
+                    پاک کردن
+                </a>
+            </div>
+
+        </form>
+
+        <a asp-page="./Create" class="add-user-button">
+            + افزودن کاربر
+        </a>
+
+    </div>
+
+    <div class="table-card">
+        <div class="table-wrapper">
+            <table class="users-table">
+                <thead>
+                    <tr>
+                        <th>نام</th>
+                        <th>نام خانوادگی</th>
+                        <th>شماره تلفن</th>
+                        <th>نام کاربری</th>
+                        <th>تاریخ عضویت</th>
+                        <th>سازمان</th>
+                        <th>نقش</th>
+                        <th>عملیات</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    @if (Model.Users?.Data?.Count > 0)
+                    {
+                        @foreach (var user in Model.Users.Data)
+                        {
+                            <tr>
+                                <td>@user.FirstName</td>
+                                <td>@user.LastName</td>
+                                <td class="mobile">@user.Mobile</td>
+                                <td>@user.UserName</td>
+                                <td>@user.CreatedAt.ToString("yyyy/MM/dd")</td>
+                                <td>@user.Organization</td>
+                                <td>
+                                    @if (string.IsNullOrWhiteSpace(user.Role))
+                                    {
+                                        <span class="role-badge no-role">بدون نقش</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="role-badge">@user.Role</span>
+                                    }
+                                </td>
+                                <td>
+                                    @if (!string.Equals(
+                                   user.Role,
+                                   "Administrator",
+                                   StringComparison.OrdinalIgnoreCase))
+                                    {
+                                        <div class="user-actions">
+                                            <a asp-page="./Edit"
+                                               asp-route-id="@user.Id"
+                                               class="action-button edit-button">
+                                                ویرایش
+                                            </a>
+                                        </div>
+                                    }
+                                </td>
+                            </tr>
+                        }
+                    }
+                    else
+                    {
+                        <tr>
+                            <td colspan="7" class="empty-message">
+                                کاربری برای نمایش وجود ندارد.
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+</div>

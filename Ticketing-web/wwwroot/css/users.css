@@ -1,0 +1,316 @@
+﻿
+.users-container {
+    padding: 25px;
+    font-family: Tahoma, Arial, sans-serif;
+    color: #1f2937;
+    direction: rtl;
+}
+
+/* سربرگ صفحه */
+.page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 22px;
+}
+
+    .page-header h2 {
+        margin: 0 0 8px;
+        font-size: 23px;
+    }
+
+    .page-header p {
+        margin: 0;
+        color: #6b7280;
+        font-size: 14px;
+    }
+
+.users-count {
+    padding: 10px 15px;
+    background: #eff6ff;
+    color: #1d4ed8;
+    border-radius: 8px;
+    font-size: 13px;
+    white-space: nowrap;
+}
+
+/* نوار فیلترها */
+.users-toolbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    gap: 16px;
+    flex-wrap: wrap;
+    margin-bottom: 22px;
+}
+
+.filter-form {
+    display: flex;
+    align-items: flex-end;
+    gap: 12px;
+    flex: 1;
+    flex-wrap: wrap;
+    min-width: 0;
+}
+
+.search-box,
+.filter-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.search-box {
+    flex: 1 1 230px;
+    min-width: 200px;
+}
+
+.filter-group {
+    flex: 0 1 180px;
+    min-width: 150px;
+}
+
+    .search-box label,
+    .filter-group label {
+        font-size: 13px;
+        font-weight: bold;
+        color: #374151;
+    }
+
+    .search-box input,
+    .filter-group select {
+        box-sizing: border-box;
+        width: 100%;
+        height: 42px;
+        padding: 9px 12px;
+        border: 1px solid #d1d5db;
+        border-radius: 7px;
+        background: #fff;
+        color: #1f2937;
+        font-family: inherit;
+        font-size: 13px;
+    }
+
+        .search-box input:focus,
+        .filter-group select:focus {
+            outline: none;
+            border-color: #2563eb;
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.10);
+        }
+
+/* دکمه‌های فیلتر */
+.filter-actions {
+    display: flex;
+    align-items: flex-end;
+    gap: 8px;
+}
+
+.search-button,
+.reset-button,
+.add-user-button {
+    box-sizing: border-box;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    height: 42px;
+    padding: 0 15px;
+    border: none;
+    border-radius: 7px;
+    font-family: inherit;
+    font-size: 13px;
+    text-decoration: none;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: background 0.2s ease;
+}
+
+.search-button,
+.add-user-button {
+    background: #2563eb;
+    color: #fff;
+}
+
+    .search-button:hover,
+    .add-user-button:hover {
+        background: #1d4ed8;
+    }
+
+.reset-button {
+    background: #f3f4f6;
+    color: #374151;
+}
+
+    .reset-button:hover {
+        background: #e5e7eb;
+    }
+
+.add-user-button {
+    flex-shrink: 0;
+}
+
+/* جدول کاربران */
+.table-card {
+    background: #fff;
+    border: 1px solid #e5e7eb;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 3px 12px rgba(0, 0, 0, 0.04);
+}
+
+.table-wrapper {
+    width: 100%;
+    overflow-x: auto;
+}
+
+.users-table {
+    width: 100%;
+    border-collapse: collapse;
+    text-align: right;
+    white-space: nowrap;
+}
+
+    .users-table thead {
+        background: #f9fafb;
+    }
+
+    .users-table th {
+        padding: 16px 18px;
+        color: #4b5563;
+        font-size: 13px;
+        font-weight: bold;
+        border-bottom: 1px solid #e5e7eb;
+    }
+
+    .users-table td {
+        padding: 16px 18px;
+        font-size: 13px;
+        border-bottom: 1px solid #f1f5f9;
+    }
+
+    .users-table tbody tr:hover {
+        background: #f8fafc;
+    }
+
+    .users-table tbody tr:last-child td {
+        border-bottom: none;
+    }
+
+.mobile {
+    direction: ltr;
+    text-align: right;
+}
+
+.role-badge {
+    display: inline-block;
+    padding: 6px 10px;
+    border-radius: 6px;
+    background: #dcfce7;
+    color: #166534;
+    font-size: 12px;
+}
+
+    .role-badge.no-role {
+        background: #f3f4f6;
+        color: #6b7280;
+    }
+
+.empty-message {
+    padding: 35px !important;
+    text-align: center;
+    color: #6b7280;
+}
+.user-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.action-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 7px 12px;
+    border-radius: 6px;
+    font-family: inherit;
+    font-size: 12px;
+    text-decoration: none;
+    white-space: nowrap;
+    transition: background 0.2s ease;
+}
+
+.edit-button {
+    background: #eff6ff;
+    color: #1d4ed8;
+}
+
+    .edit-button:hover {
+        background: #dbeafe;
+    }
+
+.delete-button {
+    background: #fef2f2;
+    color: #b91c1c;
+}
+
+    .delete-button:hover {
+        background: #fee2e2;
+    }
+
+/* نمایش در موبایل */
+@media (max-width: 900px) {
+    .users-toolbar {
+        align-items: stretch;
+        flex-direction: column;
+    }
+
+    .filter-form {
+        width: 100%;
+    }
+
+    .add-user-button {
+        align-self: flex-start;
+    }
+}
+
+@media (max-width: 600px) {
+    .users-container {
+        padding: 12px;
+    }
+
+    .page-header {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+    .users-count {
+        white-space: normal;
+    }
+
+    .filter-form {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .search-box,
+    .filter-group {
+        width: 100%;
+        min-width: 0;
+        flex: auto;
+    }
+
+    .filter-actions {
+        width: 100%;
+    }
+
+        .filter-actions > * {
+            flex: 1;
+        }
+
+    .users-table th,
+    .users-table td {
+        padding: 12px;
+    }
+}
+
+```
