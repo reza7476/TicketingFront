@@ -20,6 +20,8 @@ public class IndexModel : PageModel
     public GetAllDto<GetAllUsersDto> Users { get; set; } = new();
     public List<GetAllOrganizationDto> Organizations { get; set; } = new();
     public List<GetAllRolesDto> Roles { get; set; } = new();
+
+    [BindProperty(SupportsGet = true)]
     public string? Search { get; set; }
 
     [BindProperty(SupportsGet = true)]

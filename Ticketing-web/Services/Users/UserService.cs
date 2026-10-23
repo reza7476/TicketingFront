@@ -1,5 +1,6 @@
 ﻿using Ticketing_web.EntityModels.Commons;
 using Ticketing_web.EntityModels.Users;
+using Ticketing_web.Pages.Users;
 using Ticketing_web.Services.Http;
 
 namespace Ticketing_web.Services.Users;
@@ -57,6 +58,12 @@ public class UserService : IUserService
             .GetAsync<GetAllDto<GetAllUsersDto>>(url);
     }
 
+    public async Task<ApiResultDto<GetUserDetailsModel?>> GetDetails(string id)
+    {
+        return await _apiClient
+            .GetAsync<GetUserDetailsModel?>($"users/{id}/details");
+    }
+
     public Task<ApiResultDto<object>> RegisterAgent(RegisterUserDto dto)
     {
         var request = new
@@ -75,5 +82,19 @@ public class UserService : IUserService
     public Task<ApiResultDto<object>> RegisterClient(RegisterUserDto dto)
     {
         throw new NotImplementedException();
+    }
+
+    public async Task<ApiResultDto<object>> UpdateUser(string id, UpdateUserRequest dto)
+    {
+        var request = new
+        {
+            dto.FirstName,
+            dto.LastName,
+            dto.Mobile,
+            dto.OrganizationId,
+            dto.RoleId
+        };
+
+        return await _apiClient.PutAsync<object, object>($"users/{id}", request);
     }
 }
