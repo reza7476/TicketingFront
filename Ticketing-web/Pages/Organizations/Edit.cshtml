@@ -1,0 +1,87 @@
+﻿@page "{id}"
+@model Ticketing_web.Pages.Organizations.EditModel
+@{
+    ViewData["Title"] = "ویرایش ارگان";
+}
+
+
+@if(Model.Input == null)
+{
+    <div class="edit-container" dir="rtl">
+        <div class="edit-card">
+            <div class="page-header">
+                <div class="header-icon">✎</div>
+                <h2>ویرایش ارگان</h2>
+                <p>ارگانی با این اطلاعات یافت نشد.</p>
+            </div>
+        </div>
+    </div>
+    @if (!string.IsNullOrWhiteSpace(Model.Message))
+    {
+        <div class="result-message">@Model.Message</div>
+    }
+    <a asp-page="./Index" class="cancel-button">
+        بازگشت
+    </a>
+}
+else
+{
+<div class="edit-container" dir="rtl">
+    <div class="edit-card">
+        <div class="page-header">
+            <div class="header-icon">✎</div>
+            <h2>ویرایش ارگان</h2>
+            <p>اطلاعات ارگان را ویرایش و ذخیره کنید.</p>
+        </div>
+
+        <form method="post">
+            <input type="hidden" asp-for="Id" />
+
+            <div asp-validation-summary="ModelOnly"
+                 class="validation-summary"></div>
+
+            <div class="form-group">
+                <label asp-for="Input!.Name">نام ارگان</label>
+                <input asp-for="Input!.Name"
+                       placeholder="نام ارگان را وارد کنید..." />
+                <span asp-validation-for="Input!.Name"
+                      class="field-error"></span>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="Input!.OrganizationCode">کد ارگان</label>
+                <input asp-for="Input!.OrganizationCode"
+                       placeholder="کد ارگان را وارد کنید..." />
+                <span asp-validation-for="Input!.OrganizationCode"
+                      class="field-error"></span>
+            </div>
+
+            <div class="default-option">
+                <input asp-for="Input!.IsDefault" />
+                <div>
+                    <label asp-for="Input!.IsDefault">ارگان پیش‌فرض</label>
+                    <small>این ارگان به‌عنوان ارگان پیش‌فرض انتخاب شود.</small>
+                </div>
+            </div>
+
+            <div class="form-actions">
+                <button type="submit" class="save-button">
+                    ذخیره تغییرات
+                </button>
+
+                <a asp-page="./Index" class="cancel-button">
+                    انصراف
+                </a>
+            </div>
+
+            @if (!string.IsNullOrWhiteSpace(Model.Message))
+            {
+                <div class="result-message">@Model.Message</div>
+            }
+        </form>
+    </div>
+</div>
+    
+}
+
+

@@ -35,6 +35,12 @@
           asp-append-version="true" />
     <link rel="stylesheet" href="~/css/tickets.css"
           asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/organization.css"
+          asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/create-organ.css"
+          asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/edit-organization.css"
+          asp-append-version="true" />
 
 </head>
 <body>
@@ -69,6 +75,16 @@
                     <span>▦</span>
                     داشبورد
                 </a>
+                @if (role ==SystemRole.Administrator)
+                {
+                    <a asp-page="/Organizations/Index" class="menu-link">
+                        <span>✉</span>
+                        سازمانها ‌ها
+                    </a>
+                }
+
+
+
                 @if (role == SystemRole.Agent)
                 {
 

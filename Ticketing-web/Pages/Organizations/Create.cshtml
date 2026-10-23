@@ -1,0 +1,61 @@
+﻿@page
+@model Ticketing_web.Pages.Organizations.CreateModel
+@{
+    ViewData["Title"] = "افزودن ارگان";
+    Layout = "_Layout";
+}
+
+
+<div class="create-container" dir="rtl">
+    <div class="create-card">
+        <div class="page-header">
+            <h2>افزودن ارگان جدید</h2>
+            <p>اطلاعات ارگان را وارد کنید.</p>
+        </div>
+
+        <form method="post">
+            <div asp-validation-summary="ModelOnly"
+                 class="validation-summary"></div>
+
+            <div class="form-group">
+                <label asp-for="Input.Name">نام ارگان</label>
+                <input asp-for="Input.Name"
+                       placeholder="نام ارگان را وارد کنید..." />
+                <span asp-validation-for="Input.Name"
+                      class="field-error"></span>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="Input.OrganizationCode">
+                    کد ارگان
+                </label>
+                <input asp-for="Input.OrganizationCode"
+                       placeholder="کد ارگان را وارد کنید..." />
+                <span asp-validation-for="Input.OrganizationCode"
+                      class="field-error"></span>
+            </div>
+
+            <div class="form-group checkbox-group">
+                <input asp-for="Input.IsDefault" />
+                <label asp-for="Input.IsDefault">
+                    ارگان پیش‌فرض باشد
+                </label>
+            </div>
+
+            <div class="form-actions">
+                <button type="submit" class="submit-button">
+                    ثبت ارگان
+                </button>
+
+                <a asp-page="./Index" class="cancel-button">
+                    بازگشت
+                </a>
+            </div>
+
+            @if (!string.IsNullOrWhiteSpace(Model.Message))
+            {
+                <p class="result-message">@Model.Message</p>
+            }
+        </form>
+    </div>
+</div>

@@ -130,104 +130,7 @@
                     </button>
                 </form>
 
-                <!-- فرم ثبت‌نام -->
-                <form id="register" class="auth-form" method="post" asp-page-handler="Register">
-                    @Html.AntiForgeryToken()
-                    <h2 class="form-heading">ایجاد حساب کاربری</h2>
-
-                    <p class="form-subtitle">
-                        برای شروع، اطلاعات خود را وارد کنید.
-                    </p>
-
-                    <label>
-                        <input type="radio" name="UserType"
-                               value="client" checked />
-                        Client
-                    </label>
-
-                    <label>
-                        <input type="radio" name="UserType"
-                               value="agent" />
-                        Agent
-                    </label>
-
-                    <div class="field-group">
-                        <label class="field-label" for="FirstName">
-                            نام
-                        </label>
-                        <input id="FirstName"
-                               name="FirstName"
-                               type="text"
-                               class="form-control"
-                               placeholder="نام خود را وارد کنید"
-                               autocomplete="name"
-                               required>
-                    </div>
-
-                    <div class="field-group">
-                        <label class="field-label" for="FirstName">
-                            نام
-                        </label>
-                        <input id="LastName"
-                               name="LastName"
-                               type="text"
-                               class="form-control"
-                               placeholder="نام و نام خانوادگی خود را وارد کنید"
-                               autocomplete="last name"
-                               required>
-                    </div>
-
-                    <div class="field-group">
-                        <label class="field-label" for="Mobile">
-                            موبایل
-                        </label>
-                        <input id="mobile"
-                               name="Mobile"
-                               type="text"
-                               class="form-control"
-                               placeholder="989121234578"
-                               autocomplete="off"
-                               required>
-                    </div>
-
-                    <div class="field-group">
-                        <label class="field-label" for="registerPassword">
-                            رمز عبور
-                        </label>
-                        <input id="registerPassword"
-                               name="Password"
-                               type="password"
-                               class="form-control"
-                               placeholder="حداقل ۸ کاراکتر"
-                               autocomplete="new-password"
-                               required>
-                    </div>
-
-                    <div class="field-group">
-                        <label class="field-label" for="confirmPassword">
-                            تکرار رمز عبور
-                        </label>
-                        <input id="confirmPassword"
-                               name="ConfirmPassword"
-                               type="password"
-                               class="form-control"
-                               placeholder="رمز عبور را دوباره وارد کنید"
-                               autocomplete="new-password"
-                               required>
-                    </div>
-
-                    <div class="field-group">
-                        <label class="field-label">نوع حساب کاربری</label>
-
-
-                    </div>
-
-
-                    <div id="registerMessage" class="text-danger mt-2"></div>
-                    <button type="submit" class="btn btn-auth">
-                        ایجاد حساب کاربری
-                    </button>
-                </form>
+               
             </section>
         </div>
     </main>
@@ -236,42 +139,6 @@
     <script>
 
         $(() => {
-
-            $(".auth-tab").on("click", function () {
-                const target = $(this).data("target");
-                $(".auth-tab").removeClass("active");
-                $(this).addClass("active");
-                $(".auth-form").removeClass("active");
-                $("#" + target).addClass("active");
-            });
-
-            $("#register").on("submit", function (event) {
-
-                event.preventDefault();
-                const formData = $(this).serialize();
-
-                $.ajax({
-                    url: $(this).attr("action"),
-                    type: "POST",
-                    data: formData,
-                    dataType: "json",
-                    success: function (res) {
-                        console.log(res);
-
-                        if (res.success === true) {
-                            location.reload();
-                        } else {
-                            $("#registerMessage").text(res.message || "ثبت نام ناموفق بود");
-                        }
-                    },
-                    error: function (xhr) {
-                        $("#registerMessage").text(
-                            xhr.responseJSON?.message
-                            || "ارسال اطلاعات با خطا مواجه شد."
-                        );
-                    }
-                });
-            });
 
             $("#login").on("submit", function (event) {
 
@@ -287,7 +154,7 @@
                         if (res.success) {
                             window.location.href = "/Dashboard"
                         } else {
-                            $("#loginMessage").text(res.message || "ثبت نام ناموفق بود");
+                            $("#loginMessage").text(res.message || "ورود ناموفق بود");
                         }
                     },
                     error: function (xhr) {
