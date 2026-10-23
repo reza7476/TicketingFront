@@ -6,9 +6,11 @@ namespace Ticketing_web.Services.Tickets;
 
 public interface ITicketService : IService
 {
-    Task<ApiResultDto<GetAllDto<GetAllTicketsDto>>> GetAgentTickets(
+    Task<ApiResultDto<GetAllDto<GetAllTicketsDto>>> GetAllTicketsForAdmin(
         int offset,
-        int limit);
+        int limit,
+        TicketFilterDto? filter=null,
+        string? search = null);
     
     Task<ApiResultDto<GetAllDto<GetAllTicketsDto>>> GetClientTickets(
         int offset,

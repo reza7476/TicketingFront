@@ -1,0 +1,186 @@
+﻿@page
+@using Ticketing_web.EntityModels.Tickets
+@model Ticketing_web.Pages.Admin.Tickets.IndexModel
+@{
+    Layout = "_Layout";
+ }
+
+<div class="tickets-page" dir="rtl">
+
+    <div class="page-header">
+        <h2>لیست تیکت‌ها</h2>
+        <p>مشاهده و مدیریت درخواست‌های کاربران</p>
+    </div>
+
+    <!-- جست‌وجو و فیلتر -->
+    <form method="get" asp-page="./Index" class="filters">
+
+        <div class="filter-item search-item">
+            <label for="AskedBy">کاربر سؤال‌کننده</label>
+            <input type="text"
+                   id="AskedBy"
+                   name="AskedBy"
+                   value="@Model.AskedBy"
+                   placeholder="نام کاربر را وارد کنید..." />
+        </div>
+
+        <div class="filter-item">
+            <label for="Status">وضعیت</label>
+
+            <select id="Status" name="Status">
+                <option value="">همه وضعیت‌ها</option>
+
+                @foreach (TicketStatus status in Enum.GetValues<TicketStatus>())
+                {
+                    <option value="@((int)status)"
+                            selected="@(Model.Status == status)">
+                        @status
+                    </option>
+                }
+            </select>
+        </div>
+
+        <div class="filter-item">
+            <label for="Priority">اولویت</label>
+
+            <select id="Priority" name="Priority">
+                <option value="">همه اولویت‌ها</option>
+
+                @foreach (Priority priority in Enum.GetValues<Priority>())
+                {
+                    <option value="@((int)priority)"
+                            selected="@(Model.Priority == priority)">
+                        @switch (priority)
+                        {
+                            case Priority.Low:
+                                @:کم
+                                break;
+
+                            case Priority.Medium:
+                                @:متوسط
+                                break;
+
+                            case Priority.High:
+                                @:زیاد
+                                break;
+                        }
+                    </option>
+                }
+            </select>
+        </div>
+
+
+
+        <div class="filter-actions">
+            <button type="submit" class="btn-primary">
+                جست‌وجو و فیلتر
+            </button>
+
+            <a asp-page="./Index" class="btn-secondary">
+                پاک کردن فیلترها
+            </a>
+        </div>
+    </form>
+
+    <!-- جدول تیکت‌ها -->
+    <div class="table-container">
+        <table class="tickets-table">
+            <thead>
+                <tr>
+                    <th>شماره</th>
+                    <th>عنوان</th>
+                    <th>کاربر سؤال‌کننده</th>
+                    <th>اولویت</th>
+                    <th>تاریخ ثبت</th>
+                    <th>وضعیت</th>
+                    <th>عملیات</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                @if (Model.Tickets.Data != null &&
+                     Model.Tickets.Data.Any())
+                {
+                    @foreach (var item in Model.Tickets.Data)
+                    {
+                        <tr>
+                            <td>@item.Number</td>
+                            <td class="ticket-title">@item.Title</td>
+                            <td>@item.AskedBy</td>
+
+                            <td>
+                                <span class="priority @item.Priority.ToString().ToLowerInvariant()">
+                                    @switch (item.Priority.ToString())
+                                    {
+                                        case "Low":
+                                            @:کم
+                                            break;
+                                        case "Medium":
+                                            @:متوسط
+                                            break;
+                                        case "High":
+                                            @:زیاد
+                                            break;
+                                        default:
+                                            @item.Priority
+                                            break;
+                                    }
+                                </span>
+                            </td>
+
+                            <td>
+                                @item.CreatedAt.ToString("yyyy/MM/dd HH:mm")
+                            </td>
+
+                            <td>
+                                <span class="status @item.Status.ToString().ToLowerInvariant()">
+                                    @switch (item.Status.ToString())
+                                    {
+                                        case "Open":
+                                            @:باز
+                                            break;
+                                        case "InProgress":
+                                            @:در حال بررسی
+                                            break;
+                                        case "Answered":
+                                            @:پاسخ داده شده
+                                            break;
+                                        case "Closed":
+                                            @:بسته شده
+                                            break;
+                                        default:
+                                            @item.Status
+                                            break;
+                                    }
+                                </span>
+                            </td>
+
+                            <td>
+                                <a class="details-button"
+                                   asp-page="./Details"
+                                   asp-route-id="@item.Id">
+                                    مشاهده جزئیات
+                                </a>
+                            </td>
+                        </tr>
+                    }
+                }
+                else
+                {
+                    <tr>
+                        <td colspan="7" class="empty-message">
+                            تیکتی برای نمایش وجود ندارد.
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+
+    <!-- انتخاب تعداد تیکت در صفحه -->
+   
+
+    <!-- صفحه‌بندی در وسط صفحه -->
+   
+
+</div>

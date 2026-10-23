@@ -1,5 +1,4 @@
-﻿using Ticketing_web.EntityModels.Authentications.Dto;
-using Ticketing_web.EntityModels.Commons;
+﻿using Ticketing_web.EntityModels.Commons;
 using Ticketing_web.EntityModels.Tickets;
 using Ticketing_web.Services.Http;
 
@@ -22,20 +21,49 @@ public class TicketService : ITicketService
             dto.Content,
             dto.Title,
         };
-        return await _apiClient.PostAsync<object,object>(
+        return await _apiClient.PostAsync<object, object>(
             "tickets/add",
             request);
     }
 
     public async Task<ApiResultDto<GetAllDto<GetAllTicketsDto>>>
-        GetAgentTickets(int offset, int limit)
+    GetAllTicketsForAdmin(
+        int offset,
+        int limit,
+        TicketFilterDto? filter = null,
+        string? search = null)
     {
-        return await _apiClient
-            .GetAsync<GetAllDto<GetAllTicketsDto>>(
-            $"tickets/get-all-for-agent?offset={offset}&limit={limit}");
+        var queryParams = new List<string>
+    {
+        $"offset={offset}",
+        $"limit={limit}"
+    };
+
+        if (!string.IsNullOrEmpty(search))
+        {
+            queryParams.Add($"search="+ search);
+        }
+
+        if (filter != null)
+        {
+            if (filter.Status != null)
+            {
+                queryParams.Add($"Status={(int)filter.Status}");
+            }
+
+            if (filter.Priority != null)
+            {
+                queryParams.Add($"Priority={(int)filter.Priority}");
+            }
+        }
+
+        var queryString = string.Join("&", queryParams);
+
+        return await _apiClient.GetAsync<GetAllDto<GetAllTicketsDto>>(
+            $"tickets/get-all-for-admin?{queryString}");
     }
 
-    public  async Task<ApiResultDto<GetAllDto<GetAllTicketsDto>>>
+    public async Task<ApiResultDto<GetAllDto<GetAllTicketsDto>>>
         GetClientTickets(int offset, int limit)
     {
         return await _apiClient
