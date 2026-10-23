@@ -6,7 +6,7 @@ namespace Ticketing_web.Services.Users;
 
 public class UserService : IUserService
 {
-private readonly ApiClient _apiClient;
+    private readonly ApiClient _apiClient;
 
     public UserService(ApiClient apiClient)
     {
@@ -25,21 +25,6 @@ private readonly ApiClient _apiClient;
 
         return _apiClient.PostAsync<object, object>(
             "Users/sign-up-agent",
-            request);
-    }
-
-    public Task<ApiResultDto<object>> RegisterClient(RegisterUserDto dto)
-    {
-        var request = new
-        {
-            Name = dto.FirstName,
-            LastName = dto.LastName,
-            Mobile = dto.Mobile,
-            Password = dto.Password
-        };
-
-        return _apiClient.PostAsync<object, object>(
-            "Users/sign-up-client",
             request);
     }
 }

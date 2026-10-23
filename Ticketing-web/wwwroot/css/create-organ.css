@@ -1,0 +1,125 @@
+﻿
+.create-container {
+    max-width: 650px;
+    margin: 40px auto;
+    padding: 20px;
+    font-family: Tahoma, Arial, sans-serif;
+}
+
+.create-card {
+    background: #fff;
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    padding: 30px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+}
+
+.page-header {
+    margin-bottom: 28px;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 18px;
+}
+
+    .page-header h2 {
+        margin: 0 0 10px;
+        font-size: 23px;
+        color: #1f2937;
+    }
+
+    .page-header p {
+        margin: 0;
+        color: #6b7280;
+        font-size: 14px;
+    }
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 9px;
+    margin-bottom: 22px;
+}
+
+    .form-group label {
+        font-size: 14px;
+        font-weight: bold;
+        color: #374151;
+    }
+
+    .form-group input:not([type="checkbox"]) {
+        width: 100%;
+        box-sizing: border-box;
+        padding: 12px 14px;
+        border: 1px solid #d1d5db;
+        border-radius: 7px;
+        font-family: inherit;
+        font-size: 14px;
+        outline: none;
+        transition: border-color 0.2s;
+    }
+
+    .form-group input:focus {
+        border-color: #2563eb;
+    }
+
+.checkbox-group {
+    flex-direction: row;
+    align-items: center;
+    gap: 10px;
+}
+
+    .checkbox-group input {
+        width: 17px;
+        height: 17px;
+        cursor: pointer;
+    }
+
+    .checkbox-group label {
+        cursor: pointer;
+    }
+
+.form-actions {
+    display: flex;
+    gap: 12px;
+    margin-top: 28px;
+}
+
+.submit-button,
+.cancel-button {
+    padding: 11px 22px;
+    border-radius: 7px;
+    font-family: inherit;
+    font-size: 14px;
+    text-decoration: none;
+    cursor: pointer;
+    text-align: center;
+}
+
+.submit-button {
+    border: none;
+    background: #2563eb;
+    color: white;
+}
+
+    .submit-button:hover {
+        background: #1d4ed8;
+    }
+
+.cancel-button {
+    background: #f3f4f6;
+    color: #374151;
+}
+
+.validation-summary,
+.field-error {
+    color: #dc2626;
+    font-size: 13px;
+}
+
+    .validation-summary:empty {
+        display: none;
+    }
+
+.result-message {
+    margin-top: 20px;
+    font-size: 14px;
+}
