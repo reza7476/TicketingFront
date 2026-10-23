@@ -22,7 +22,7 @@ namespace Ticketing_web.Pages.Agent.Tickets
         {
 
             var offset = pageNumber * limit;
-            var result = await _ticketService.GetAgentTickets(offset, limit);
+            var result = await _ticketService.GetAllTicketsForAdmin(offset, limit);
 
 
             if (result.IsSuccess && result.Data != null)
