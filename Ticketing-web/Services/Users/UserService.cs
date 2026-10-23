@@ -13,14 +13,30 @@ public class UserService : IUserService
         _apiClient = apiClient;
     }
 
+    public async Task<ApiResultDto<string>> AddAsync(AddUserModel model)
+    {
+        var request = new
+        {
+            model.FirstName,
+            model.LastName,
+            model.Mobile,
+            model.OrganizationId,
+            model.RoleId,
+            model.Password
+        };
+        return await _apiClient.PostAsync<object, string>(
+          "users/add", request
+          );
+    }
+
     public async Task<ApiResultDto<GetAllDto<GetAllUsersDto>>>
         GetAllForAdministrator(string? search, UserFilterDto? filter)
     {
 
         var queryParams = new List<string>();
 
-        if(!string.IsNullOrWhiteSpace(search))
-        queryParams.Add($"search={Uri.EscapeDataString(search)}");
+        if (!string.IsNullOrWhiteSpace(search))
+            queryParams.Add($"search={Uri.EscapeDataString(search)}");
 
         if (!string.IsNullOrWhiteSpace(filter?.Organization))
             queryParams.Add(
