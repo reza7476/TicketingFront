@@ -1,0 +1,115 @@
+﻿@page "{id}"
+@model Ticketing_web.Pages.Users.EditModel
+@{
+    ViewData["Title"] = "ویرایش کاربر";
+    Layout = "_Layout";
+}
+
+
+
+<div class="edit-user-container" dir="rtl">
+
+    <div class="edit-user-header">
+        <div>
+            <h2>ویرایش کاربر</h2>
+            <p>اطلاعات کاربر را ویرایش و ذخیره کنید.</p>
+        </div>
+
+        <a asp-page="./Index" class="back-button">
+            بازگشت به فهرست
+        </a>
+    </div>
+
+    <div class="edit-user-card">
+
+        @if (!string.IsNullOrWhiteSpace(Model.Message))
+        {
+            <div class="message-box @(Model.IsSuccess ? "success" : "error")"
+                 role="alert">
+                @Model.Message
+            </div>
+        }
+
+        @if (Model.Input != null)
+        {
+            <form method="post">
+
+                <div asp-validation-summary="ModelOnly"
+                     class="validation-summary"></div>
+
+                <input type="hidden" asp-for="Id" />
+
+                <div class="form-grid">
+
+                    <div class="form-group">
+                        <label asp-for="Input!.FirstName">نام</label>
+                        <input asp-for="Input!.FirstName"
+                               placeholder="نام کاربر" />
+                        <span asp-validation-for="Input!.FirstName"
+                              class="field-error"></span>
+                    </div>
+
+                    <div class="form-group">
+                        <label asp-for="Input!.LastName">نام خانوادگی</label>
+                        <input asp-for="Input!.LastName"
+                               placeholder="نام خانوادگی کاربر" />
+                        <span asp-validation-for="Input!.LastName"
+                              class="field-error"></span>
+                    </div>
+
+                    <div class="form-group">
+                        <label asp-for="Input!.Mobile">شماره موبایل</label>
+                        <input asp-for="Input!.Mobile"
+                               type="tel"
+                               dir="ltr"
+                               placeholder="09xxxxxxxxx" />
+                        <span asp-validation-for="Input!.Mobile"
+                              class="field-error"></span>
+                    </div>
+
+                    <div class="form-group">
+                        <label asp-for="Input!.OrganizationId">سازمان</label>
+                        <select asp-for="Input!.OrganizationId"
+                                asp-items="Model.Organizations">
+                            <option value="">انتخاب سازمان</option>
+                        </select>
+                        <span asp-validation-for="Input!.OrganizationId"
+                              class="field-error"></span>
+                    </div>
+
+                    <div class="form-group">
+                        <label asp-for="Input!.RoleId">نقش</label>
+                        <select asp-for="Input!.RoleId"
+                                asp-items="Model.Roles">
+                            <option value="">انتخاب نقش</option>
+                        </select>
+                        <span asp-validation-for="Input!.RoleId"
+                              class="field-error"></span>
+                    </div>
+
+                </div>
+
+                <div class="form-actions">
+                    <button type="submit" class="save-button">
+                        ذخیره تغییرات
+                    </button>
+
+                    <a asp-page="./Index" class="cancel-button">
+                        انصراف
+                    </a>
+                </div>
+
+            </form>
+        }
+        else if (string.IsNullOrWhiteSpace(Model.Message))
+        {
+            <p>اطلاعات کاربر در دسترس نیست.</p>
+        }
+
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
+```
