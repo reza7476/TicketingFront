@@ -1,5 +1,4 @@
-﻿using Microsoft.Extensions.Logging;
-using Ticketing_web.EntityModels.Commons;
+﻿using Ticketing_web.EntityModels.Commons;
 using Ticketing_web.EntityModels.Tickets;
 using Ticketing_web.Services.Http;
 
@@ -38,6 +37,27 @@ public class TicketService : ITicketService
         return await _apiClient.PostAsync<object>("tickets/assign-to-agent", request);
     }
 
+    public async Task<ApiResultDto<GetAllDto<AgentAllTicketDto>>>
+        GetAllAgentTickets(TicketFilterDto filter)
+    {
+        var queryParams = new List<string>();
+
+       if(filter != null)
+        {
+            if (filter.Status != null)
+            {
+                queryParams.Add($"Status={(int)filter.Status}");
+            }
+
+            if (filter.Priority != null)
+            {
+                queryParams.Add($"Priority={(int)filter.Priority}");
+            }
+        }
+        var queryString = string.Join("&", queryParams);
+        return await _apiClient.GetAsync<GetAllDto<AgentAllTicketDto>>($"tickets/all-for-agent{queryString}");
+    }
+
     public async Task<ApiResultDto<GetAllDto<GetAllTicketsDto>>>
     GetAllTicketsForAdmin(
         int offset,
@@ -46,14 +66,14 @@ public class TicketService : ITicketService
         string? search = null)
     {
         var queryParams = new List<string>
-    {
-        $"offset={offset}",
-        $"limit={limit}"
-    };
+         {
+             $"offset={offset}",
+             $"limit={limit}"
+         };
 
         if (!string.IsNullOrEmpty(search))
         {
-            queryParams.Add($"search="+ search);
+            queryParams.Add($"search=" + search);
         }
 
         if (filter != null)
@@ -83,7 +103,7 @@ public class TicketService : ITicketService
            $"tickets/all-for-client?offset={offset}&limit={limit}");
     }
 
-    public async Task<ApiResultDto<GetTicketDetailsDto?>> 
+    public async Task<ApiResultDto<GetTicketDetailsDto?>>
         GetDetailsForAdminAsync(string id)
     {
         return await _apiClient
