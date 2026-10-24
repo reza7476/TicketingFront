@@ -160,11 +160,6 @@ public class DetailsModel : PageModel
             return Page();
         }
 
-        if (Ticket.Replies.Count > 0)
-        {
-            ErrorMessage = "این تیکت قبلاً پاسخ دارد و نمی‌توان از این فرم پاسخ جدید ثبت کرد.";
-            return Page();
-        }
 
         var result = await _replyService.ReplyTicket(
             id,

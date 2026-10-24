@@ -90,12 +90,27 @@
 
 
 
-                <a asp-page="/Admin/Index" class="menu-link">
-                    <span>▦</span>
-                    داشبورد
-                </a>
-                @if (role ==SystemRole.Administrator)
+       
+                @if (role ==SystemRole.Administrator )
                 {
+                    <a asp-page="/Organizations/Index" class="menu-link">
+                        <span>✉</span>
+                        سازمانها ‌ها
+                    </a>
+
+                    <a asp-page="/Users/Index" class="menu-link">
+                        <span>✉</span>
+                        کاربران
+                    </a>
+                    <a asp-page="/Admin/Tickets/Index" class="menu-link">
+                        <span>✉</span>
+                        تیکت ها
+                    </a>
+                }
+
+                @if (role == SystemRole.Admin)
+                {
+
                     <a asp-page="/Organizations/Index" class="menu-link">
                         <span>✉</span>
                         سازمانها ‌ها
@@ -121,15 +136,6 @@
                         تیکت‌ها
                     </a>
 
-                    <a asp-page="/Admin/Users/Index" class="menu-link">
-                        <span>♙</span>
-                        مدیریت کاربران
-                    </a>
-
-                    <a asp-page="/Admin/Agents/Index" class="menu-link">
-                        <span>♧</span>
-                        کارشناسان
-                    </a>
                 }
                 @if (role == SystemRole.Client)
                 {
@@ -140,18 +146,11 @@
                 }
 
 
-
-                <span class="menu-heading">حساب کاربری</span>
-
-                <a asp-page="/Index" class="menu-link">
-                    <span>⌂</span>
-                    صفحه اصلی
-                </a>
-
-                <a href="/Account/Logout" class="menu-link logout-link">
-                    <span>↪</span>
-                    خروج
-                </a>
+                <form method="post" asp-page="/Auth/Logout">
+                    <button type="submit" class="btn btn-danger">
+                        خروج
+                    </button>
+                </form>
             </nav>
         </aside>
 
