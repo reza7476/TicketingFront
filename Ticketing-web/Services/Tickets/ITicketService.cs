@@ -21,4 +21,5 @@ public interface ITicketService : IService
     Task<ApiResultDto<object>> AssignTicketAsync(string id, string assignedUserId);
     Task<ApiResultDto<GetTicketDetailsDto?>> GetDetailsForAdminAsync(string id);
     Task<ApiResultDto<GetAgentTicketDetailsDto?>> GetDetailsForAgent(string id);
+    Task<ApiResultDto<GetClientTicketDetailsDto?>> GetClientTicketDetails(string id);
 }

@@ -166,7 +166,7 @@ public class DetailsModel : PageModel
             return Page();
         }
 
-        var result = await _replyService.ReplyByAgent(
+        var result = await _replyService.ReplyTicket(
             id,
             replyContent);
 
