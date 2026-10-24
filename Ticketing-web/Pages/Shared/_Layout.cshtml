@@ -52,7 +52,11 @@
 
     <link rel="stylesheet" href="~/css/ticket-details.css"
            asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/agent-tikets.css"
+           asp-append-version="true" />
 
+    <link rel="stylesheet" href="~/css/agent-ticket-details.css"
+          asp-append-version="true" />
 </head>
 
 <body>
@@ -109,7 +113,7 @@
                 @if (role == SystemRole.Agent)
                 {
 
-                    <a asp-page="/Agent/Tickets/Index" class="menu-link">
+                    <a asp-page="/Agents/Tickets/Index" class="menu-link">
                         <span>✉</span>
                         تیکت‌ها
                     </a>
