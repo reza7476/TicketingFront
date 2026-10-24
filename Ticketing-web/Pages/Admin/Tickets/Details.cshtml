@@ -1,0 +1,335 @@
+﻿@page "{id}"
+@using Ticketing_web.EntityModels.Tickets
+@model Ticketing_web.Pages.Admin.Tickets.DetailsModel
+@{
+    ViewData["Title"] = "جزئیات تیکت";
+}
+
+
+<div class="ticket-page" dir="rtl">
+
+    <div class="page-header">
+        <div>
+            <h1>جزئیات تیکت</h1>
+            <p>مشاهده اطلاعات، تاریخچه ارجاعات و پاسخ‌ها</p>
+        </div>
+
+        <a asp-page="/Agent/Tickets/Index" class="back-button">
+            بازگشت به فهرست
+        </a>
+    </div>
+
+    @if (!string.IsNullOrWhiteSpace(Model.Message))
+    {
+        <div class="message success-message">
+            @Model.Message
+        </div>
+    }
+
+    @if (!string.IsNullOrWhiteSpace(Model.ErrorMessage))
+    {
+        <div class="message error-message">
+            @Model.ErrorMessage
+        </div>
+    }
+
+    @if (Model.Ticket == null)
+    {
+        <div class="empty-state">
+            اطلاعات تیکت دریافت نشد.
+        </div>
+    }
+    else
+    {
+        var ticket = Model.Ticket;
+        var isClosed = ticket.Status == TicketStatus.Closed;
+
+        <!-- اطلاعات اصلی تیکت -->
+        <section class="panel ticket-information">
+
+            <div class="panel-header">
+                <h2>@ticket.Title</h2>
+
+                <span class="ticket-number">
+                    شماره @ticket.Number
+                </span>
+            </div>
+
+            <div class="ticket-meta">
+                <div class="meta-item">
+                    <span>ثبت‌کننده</span>
+                    <strong>@ticket.AskedBy</strong>
+                </div>
+
+                <div class="meta-item">
+                    <span>سازمان مالک</span>
+                    <strong>@ticket.OwnerOrgan</strong>
+                </div>
+
+                <div class="meta-item">
+                    <span>تاریخ ثبت</span>
+                    <strong>@ticket.CreatedAt.ToString("yyyy/MM/dd HH:mm")</strong>
+                </div>
+
+                <div class="meta-item">
+                    <span>اولویت</span>
+                    <strong class="priority @ticket.Priority.ToString().ToLowerInvariant()">
+                        @ticket.Priority
+                    </strong>
+                </div>
+
+                <div class="meta-item">
+                    <span>وضعیت</span>
+                    <strong class="status @ticket.Status.ToString().ToLowerInvariant()">
+                        @ticket.Status
+                    </strong>
+                </div>
+            </div>
+
+            <div class="ticket-content">
+                <h3>متن تیکت</h3>
+                <p>@ticket.Content</p>
+            </div>
+
+            <!-- ارجاع تیکت فقط در وضعیت غیر بسته -->
+            <div class="ticket-actions">
+                @if (!isClosed)
+                {
+                    <button type="button"
+                            class="btn btn-primary"
+                            onclick="showAssignForm()">
+                        ارجاع تیکت
+                    </button>
+                }
+                else
+                {
+                    <button type="button" class="btn btn-disabled" disabled>
+                        تیکت بسته شده است
+                    </button>
+                }
+            </div>
+
+            @if (!isClosed)
+            {
+                <form method="post"
+                      asp-page-handler="Assign"
+                      asp-route-id="@Model.Id"
+                      id="assignForm"
+                      class="assign-form hidden">
+
+                    <div class="form-group">
+                        <label asp-for="AssignedUserId">
+                            شناسه کاربر مقصد
+                        </label>
+
+                        <input asp-for="AssignedUserId"
+                               class="form-control"
+                               placeholder="شناسه کاربر مقصد را وارد کنید" />
+
+                        <span asp-validation-for="AssignedUserId"
+                              class="validation-error"></span>
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-primary">
+                            ثبت ارجاع
+                        </button>
+
+                        <button type="button"
+                                class="btn btn-secondary"
+                                onclick="hideAssignForm()">
+                            انصراف
+                        </button>
+                    </div>
+                </form>
+            }
+        </section>
+
+        <!-- تاریخچه ارجاعات -->
+        <section class="panel">
+            <div class="panel-header">
+                <h2>تاریخچه ارجاعات</h2>
+                <span class="count">
+                    @ticket.AssignmentHistory.Count مورد
+                </span>
+            </div>
+
+            @if (ticket.AssignmentHistory.Count == 0)
+            {
+                <div class="empty-state">
+                    هنوز ارجاعی برای این تیکت ثبت نشده است.
+                </div>
+            }
+            else
+            {
+                <div class="assignment-list">
+                    @foreach (var assignment in ticket.AssignmentHistory
+                        .OrderByDescending(x => x.CreatedAt))
+                    {
+                        <div class="assignment-item">
+                            <div class="assignment-icon">↪</div>
+
+                            <div class="assignment-details">
+                                <strong>@assignment.AssignedUser</strong>
+                                <span>مسئول دریافت تیکت</span>
+                            </div>
+
+                            <time>
+                                @assignment.CreatedAt.ToString("yyyy/MM/dd HH:mm")
+                            </time>
+                        </div>
+                    }
+                </div>
+            }
+        </section>
+
+        <!-- پاسخ‌ها -->
+        <section class="panel">
+            <div class="panel-header">
+                <h2>پاسخ‌های تیکت</h2>
+                <span class="count">
+                    @ticket.Replies.Count پاسخ
+                </span>
+            </div>
+
+            @if (ticket.Replies.Count == 0)
+            {
+                <div class="empty-state">
+                    هنوز پاسخی برای این تیکت ثبت نشده است.
+                </div>
+            }
+            else
+            {
+                <div class="reply-list">
+                    @foreach (var reply in ticket.Replies
+                        .OrderBy(x => x.RepliedAt))
+                    {
+                        <article class="reply-card">
+
+                            <div class="reply-header">
+                                <div>
+                                    <h3>@reply.RepliedBy</h3>
+                                    <span class="reply-date">
+                                        @reply.RepliedAt.ToString("yyyy/MM/dd HH:mm")
+                                    </span>
+                                </div>
+
+                                <div class="reply-badges">
+                                    <span class="issued-by">
+                                        @reply.IssuedBy
+                                    </span>
+
+                                    @if (reply.ApprovedByAdmin)
+                                    {
+                                        <span class="approval approved">
+                                            تأیید شده توسط ادمین
+                                        </span>
+                                    }
+                                    else
+                                    {
+                                        <span class="approval pending">
+                                            در انتظار تأیید
+                                        </span>
+                                    }
+                                </div>
+                            </div>
+
+                            <div class="reply-content">
+                                @reply.Content
+                            </div>
+
+                            <div class="reply-actions">
+
+                                @if (!reply.ApprovedByAdmin)
+                                {
+                                    <button type="button"
+                                            class="btn btn-secondary"
+                                            onclick="showEditForm('@reply.Id')">
+                                        ویرایش پاسخ
+                                    </button>
+
+                                    <form method="post"
+                                          asp-page-handler="Approve"
+                                          asp-route-id="@Model.Id"
+                                          class="inline-form"
+                                          onsubmit="return confirm('آیا از تأیید این پاسخ مطمئن هستید؟');">
+
+                                        <input type="hidden"
+                                               name="replyId"
+                                               value="@reply.Id" />
+
+                                        <button type="submit"
+                                                class="btn btn-success">
+                                            تأیید پاسخ
+                                        </button>
+                                    </form>
+                                }
+                                else
+                                {
+                                    <button type="button"
+                                            class="btn btn-disabled"
+                                            disabled>
+                                        ویرایش غیرفعال
+                                    </button>
+
+                                    <button type="button"
+                                            class="btn btn-disabled"
+                                            disabled>
+                                        پاسخ تأیید شده
+                                    </button>
+                                }
+                            </div>
+
+                            <!-- فرم ویرایش هر پاسخ -->
+                            @if (!reply.ApprovedByAdmin)
+                            {
+                                <form method="post"
+                                      asp-page-handler="EditReply"
+                                      asp-route-id="@Model.Id"
+                                      id="editForm-@reply.Id"
+                                      class="edit-form hidden">
+
+                                    <input type="hidden"
+                                           name="ReplyId"
+                                           value="@reply.Id" />
+
+                                    <div class="form-group">
+                                        <label for="content-@reply.Id">
+                                            متن پاسخ جدید
+                                        </label>
+
+                                        <textarea id="content-@reply.Id"
+                                                  name="EditedContent"
+                                                  class="form-control"
+                                                  rows="4"
+                                                  required>@reply.Content</textarea>
+                                    </div>
+
+                                    <div class="form-actions">
+                                        <button type="submit"
+                                                class="btn btn-primary">
+                                            ذخیره تغییرات
+                                        </button>
+
+                                        <button type="button"
+                                                class="btn btn-secondary"
+                                                onclick="hideEditForm('@reply.Id')">
+                                            انصراف
+                                        </button>
+                                    </div>
+                                </form>
+                            }
+                        </article>
+                    }
+                </div>
+            }
+        </section>
+    }
+</div>
+
+<script src="~/js/ticket-details.js"
+        asp-append-version="true"></script>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
