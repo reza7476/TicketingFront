@@ -1,4 +1,5 @@
-﻿using Ticketing_web.EntityModels.Commons;
+﻿using Microsoft.Extensions.Logging;
+using Ticketing_web.EntityModels.Commons;
 using Ticketing_web.EntityModels.Tickets;
 using Ticketing_web.Services.Http;
 
@@ -24,6 +25,17 @@ public class TicketService : ITicketService
         return await _apiClient.PostAsync<object, object>(
             "tickets/add",
             request);
+    }
+
+    public async Task<ApiResultDto<object>> AssignTicketAsync(string id, string assignedUserId)
+    {
+        var request = new
+        {
+            TicketId = id,
+            AgentId = assignedUserId,
+        };
+
+        return await _apiClient.PostAsync<object>("tickets/assign-to-agent", request);
     }
 
     public async Task<ApiResultDto<GetAllDto<GetAllTicketsDto>>>
@@ -69,5 +81,12 @@ public class TicketService : ITicketService
         return await _apiClient
            .GetAsync<GetAllDto<GetAllTicketsDto>>(
            $"tickets/all-for-client?offset={offset}&limit={limit}");
+    }
+
+    public async Task<ApiResultDto<GetTicketDetailsDto?>> 
+        GetDetailsForAdminAsync(string id)
+    {
+        return await _apiClient
+             .GetAsync<GetTicketDetailsDto?>($"tickets/{id}/for-admin");
     }
 }
