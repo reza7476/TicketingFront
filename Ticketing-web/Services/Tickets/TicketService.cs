@@ -95,6 +95,12 @@ public class TicketService : ITicketService
             $"tickets/get-all-for-admin?{queryString}");
     }
 
+    public async  Task<ApiResultDto<GetClientTicketDetailsDto?>> GetClientTicketDetails(string id)
+    {
+        return await _apiClient
+             .GetAsync<GetClientTicketDetailsDto?>($"tickets/{id}/get-for-client");
+    }
+
     public async Task<ApiResultDto<GetAllDto<GetAllTicketsDto>>>
         GetClientTickets(int offset, int limit)
     {

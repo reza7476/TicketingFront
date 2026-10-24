@@ -7,5 +7,5 @@ public interface ITicketReplyService : IService
 {
     Task<ApiResultDto<object>> Approve(string replyId);
     Task<ApiResultDto<object>> EditReply(string replyId, string editedContent);
-    Task<ApiResultDto<object>> ReplyByAgent(string id, string content);
+    Task<ApiResultDto<object>> ReplyTicket(string id, string content);
 }

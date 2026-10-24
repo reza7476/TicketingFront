@@ -1,0 +1,211 @@
+﻿ @page "{id}"
+@using Ticketing_web.EntityModels.Tickets
+@model Ticketing_web.Pages.Clients.Tickets.DetailsModel
+@{
+    ViewData["Title"] = "جزئیات تیکت";
+    Layout = "_Layout";
+}
+
+
+
+<div class="ticket-details-page">
+
+    <div class="page-header">
+        <div>
+            <h1>جزئیات تیکت</h1>
+            <p>مشاهده اطلاعات تیکت و گفتگو با پشتیبانی</p>
+        </div>
+
+        <a asp-page="./Index" class="back-button">بازگشت به تیکت‌ها</a>
+    </div>
+
+    @if (!string.IsNullOrWhiteSpace(Model.Message))
+    {
+        <div class="alert alert-success">@Model.Message</div>
+    }
+
+    @if (!string.IsNullOrWhiteSpace(Model.ErrorMessage))
+    {
+        <div class="alert alert-error">@Model.ErrorMessage</div>
+    }
+
+    @if (Model.Ticket is null)
+    {
+        <section class="ticket-panel">
+            <p class="empty-message">اطلاعات تیکت دریافت نشد.</p>
+        </section>
+    }
+    else
+    {
+        var ticket = Model.Ticket;
+        var canReply = ticket.Status == TicketStatus.Answered;
+
+        <section class="ticket-panel">
+            <div class="section-heading">
+                <h2>@ticket.Title</h2>
+                <span class="status status-@ticket.Status.ToString().ToLowerInvariant()">
+                    @ticket.Status
+                </span>
+            </div>
+
+            <div class="ticket-info-grid">
+                <div class="info-item">
+                    <span class="info-label">تاریخ ارسال</span>
+                    <span class="info-value">@ticket.CreatedAt.ToString("yyyy/MM/dd HH:mm")</span>
+                </div>
+
+                <div class="info-item">
+                    <span class="info-label">اولویت</span>
+                    <span class="info-value priority priority-@ticket.Priority.ToString().ToLowerInvariant()">
+                        @ticket.Priority
+                    </span>
+                </div>
+
+                <div class="info-item">
+                    <span class="info-label">وضعیت</span>
+                    <span class="info-value">@ticket.Status</span>
+                </div>
+            </div>
+
+            <div class="ticket-content">
+                <h3>متن تیکت</h3>
+                <p>@ticket.Content</p>
+            </div>
+        </section>
+
+        <section class="replies-section">
+            <div class="section-heading">
+                <h2>گفتگو و پاسخ‌ها</h2>
+                <span class="reply-count">@ticket.Replies.Count پاسخ</span>
+            </div>
+
+            @if (ticket.Replies.Count == 0)
+            {
+                <div class="empty-message">هنوز پاسخی برای این تیکت ثبت نشده است.</div>
+            }
+            else
+            {
+                <div class="reply-list">
+                    @foreach (var reply in ticket.Replies.OrderBy(x => x.CreatedAt))
+                    {
+                        var isClientReply = string.Equals(
+                        reply.IssuedBy,
+                        "Client",
+                        StringComparison.OrdinalIgnoreCase);
+
+                        <article class="reply-card @(isClientReply ? "my-reply" : "support-reply")">
+                            <div class="reply-header">
+                                <div>
+                                    <span class="reply-author">
+                                        @(isClientReply ? "پاسخ شما" : $"پاسخ پشتیبانی ({reply.Mobile})")
+                                    </span>
+
+                                    <span class="reply-role">@reply.IssuedBy</span>
+                                </div>
+
+                                <time class="reply-date">
+                                    @reply.CreatedAt.ToString("yyyy/MM/dd HH:mm")
+                                </time>
+                            </div>
+
+                            <div class="reply-content" id="reply-content-@reply.Id">
+                                @reply.Content
+                            </div>
+
+                            @if (canReply && isClientReply)
+                            {
+                                <button type="button"
+                                        class="edit-button"
+                                        onclick="toggleEditForm('@reply.Id')">
+                                    ویرایش پاسخ
+                                </button>
+
+                                <form method="post"
+                                      asp-page-handler="EditReply"
+                                      asp-route-id="@Model.Id"
+                                      class="edit-reply-form"
+                                      id="edit-form-@reply.Id"
+                                      hidden>
+
+                                    <input type="hidden" name="ReplyId" value="@reply.Id" />
+
+                                    <label for="edited-content-@reply.Id">متن ویرایش‌شده</label>
+
+                                    <textarea id="edited-content-@reply.Id"
+                                              name="EditedContent"
+                                              rows="4"
+                                              minlength="2"
+                                              maxlength="5000"
+                                              required>@reply.Content</textarea>
+
+                                    <div class="form-actions">
+                                        <button type="submit" class="primary-button">
+                                            ذخیره تغییرات
+                                        </button>
+
+                                        <button type="button"
+                                                class="secondary-button"
+                                                onclick="toggleEditForm('@reply.Id')">
+                                            انصراف
+                                        </button>
+                                    </div>
+                                </form>
+                            }
+                        </article>
+                    }
+                </div>
+            }
+        </section>
+
+        @if (canReply)
+        {
+            <section class="reply-form-panel">
+                <h2>ثبت پاسخ جدید</h2>
+                <p class="form-description">
+                    می‌توانید پاسخ جدیدی برای ادامه گفتگو با پشتیبانی ارسال کنید.
+                </p>
+
+                <form method="post" asp-page-handler="Reply" asp-route-id="@Model.Id">
+                    <label for="reply-content-input">متن پاسخ</label>
+                    <textarea id="reply-content-input"
+                              name="ReplyContent"
+                              rows="5"
+                              minlength="2"
+                              maxlength="5000"
+                              placeholder="متن پاسخ خود را وارد کنید..."
+                              required>@Model.ReplyContent</textarea>
+
+                    <div class="form-footer">
+                        <span class="field-hint">حداقل ۲ و حداکثر ۵۰۰۰ کاراکتر</span>
+                        <button type="submit" class="primary-button">ارسال پاسخ</button>
+                    </div>
+                </form>
+            </section>
+        }
+        else
+        {
+            <div class="notice">
+                در وضعیت فعلی تیکت امکان ثبت پاسخ جدید وجود ندارد.
+            </div>
+        }
+    }
+</div>
+
+@section Scripts {
+    <script>
+        function toggleEditForm(replyId) {
+            const form = document.getElementById("edit-form-" + replyId);
+            if (!form) return;
+
+            form.hidden = !form.hidden;
+
+            if (!form.hidden) {
+                const textarea = form.querySelector("textarea");
+                if (textarea) {
+                    textarea.focus();
+                    textarea.setSelectionRange(textarea.value.length, textarea.value.length);
+                }
+            }
+        }
+    </script>
+}

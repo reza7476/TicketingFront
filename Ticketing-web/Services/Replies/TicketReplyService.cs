@@ -34,7 +34,7 @@ public class TicketReplyService : ITicketReplyService
         return await _apiClient.PutAsync<object, object>($"ticket-replies/{replyId}", request);
     }
 
-    public async Task<ApiResultDto<object>> ReplyByAgent(string id, string content)
+    public async Task<ApiResultDto<object>> ReplyTicket(string id, string content)
     {
         var request = new
         {
@@ -42,7 +42,7 @@ public class TicketReplyService : ITicketReplyService
             Content = content
         };
         return await _apiClient.PostAsync<object>(
-             "ticket-replies/reply-by-agent",
+             "ticket-replies/reply",
              request);
     }
 }

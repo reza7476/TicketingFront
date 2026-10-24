@@ -5,7 +5,6 @@
     ViewData["Title"] = "جزئیات تیکت";
 }
 
-
 <div class="ticket-page" dir="rtl">
 
     <div class="page-header">
@@ -56,6 +55,7 @@
             </div>
 
             <div class="ticket-meta">
+
                 <div class="meta-item">
                     <span>ثبت‌کننده</span>
                     <strong>@ticket.AskedBy</strong>
@@ -84,6 +84,7 @@
                         @ticket.Status
                     </strong>
                 </div>
+
             </div>
 
             <div class="ticket-content">
@@ -91,7 +92,7 @@
                 <p>@ticket.Content</p>
             </div>
 
-            <!-- ارجاع تیکت فقط در وضعیت غیر بسته -->
+            <!-- ارجاع تیکت -->
             <div class="ticket-actions">
                 @if (!isClosed)
                 {
@@ -103,7 +104,9 @@
                 }
                 else
                 {
-                    <button type="button" class="btn btn-disabled" disabled>
+                    <button type="button"
+                            class="btn btn-disabled"
+                            disabled>
                         تیکت بسته شده است
                     </button>
                 }
@@ -111,7 +114,6 @@
 
             @if (!isClosed)
             {
-
                 <form method="post"
                       asp-page-handler="Assign"
                       asp-route-id="@Model.Id"
@@ -165,15 +167,18 @@
                             </button>
                         </div>
                     }
-                </form>
 
+                </form>
             }
+
         </section>
 
         <!-- تاریخچه ارجاعات -->
         <section class="panel">
+
             <div class="panel-header">
                 <h2>تاریخچه ارجاعات</h2>
+
                 <span class="count">
                     @ticket.AssignmentHistory.Count مورد
                 </span>
@@ -188,10 +193,12 @@
             else
             {
                 <div class="assignment-list">
+
                     @foreach (var assignment in ticket.AssignmentHistory
                         .OrderByDescending(x => x.CreatedAt))
                     {
                         <div class="assignment-item">
+
                             <div class="assignment-icon">↪</div>
 
                             <div class="assignment-details">
@@ -202,16 +209,21 @@
                             <time>
                                 @assignment.CreatedAt.ToString("yyyy/MM/dd HH:mm")
                             </time>
+
                         </div>
                     }
+
                 </div>
             }
+
         </section>
 
-        <!-- پاسخ‌ها -->
+        <!-- پاسخ‌های تیکت -->
         <section class="panel">
+
             <div class="panel-header">
                 <h2>پاسخ‌های تیکت</h2>
+
                 <span class="count">
                     @ticket.Replies.Count پاسخ
                 </span>
@@ -226,25 +238,39 @@
             else
             {
                 <div class="reply-list">
-                    @foreach (var reply in ticket.Replies
-                        .OrderBy(x => x.RepliedAt))
+
+                    @foreach (var reply in ticket.Replies.OrderBy(x => x.RepliedAt))
                     {
+                        var isClientReply = string.Equals(
+                            reply.IssuedBy,
+                            "Client",
+                            StringComparison.OrdinalIgnoreCase);
+
                         <article class="reply-card">
 
                             <div class="reply-header">
+
                                 <div>
                                     <h3>@reply.RepliedBy</h3>
+
                                     <span class="reply-date">
                                         @reply.RepliedAt.ToString("yyyy/MM/dd HH:mm")
                                     </span>
                                 </div>
 
                                 <div class="reply-badges">
+
                                     <span class="issued-by">
                                         @reply.IssuedBy
                                     </span>
 
-                                    @if (reply.ApprovedByAdmin)
+                                    @if (isClientReply)
+                                    {
+                                        <span class="approval pending">
+                                            پاسخ ثبت‌شده توسط کاربر
+                                        </span>
+                                    }
+                                    else if (reply.ApprovedByAdmin)
                                     {
                                         <span class="approval approved">
                                             تأیید شده توسط ادمین
@@ -256,16 +282,25 @@
                                             در انتظار تأیید
                                         </span>
                                     }
+
                                 </div>
+
                             </div>
 
                             <div class="reply-content">
                                 @reply.Content
                             </div>
 
+                            <!-- عملیات ادمین روی پاسخ -->
                             <div class="reply-actions">
 
-                                @if (!reply.ApprovedByAdmin)
+                                @if (isClientReply)
+                                {
+                                    <span class="approval pending">
+                                        پاسخ کاربر؛ تأیید و ویرایش ادمین غیرفعال است
+                                    </span>
+                                }
+                                else if (!reply.ApprovedByAdmin)
                                 {
                                     <button type="button"
                                             class="btn btn-secondary"
@@ -288,6 +323,7 @@
                                                 class="btn btn-success">
                                             تأیید پاسخ
                                         </button>
+
                                     </form>
                                 }
                                 else
@@ -304,10 +340,11 @@
                                         پاسخ تأیید شده
                                     </button>
                                 }
+
                             </div>
 
-                            <!-- فرم ویرایش هر پاسخ -->
-                            @if (!reply.ApprovedByAdmin)
+                            <!-- فرم ویرایش؛ فقط برای پاسخ تأییدنشده غیر Client -->
+                            @if (!isClientReply && !reply.ApprovedByAdmin)
                             {
                                 <form method="post"
                                       asp-page-handler="EditReply"
@@ -329,10 +366,13 @@
                                                   name="EditedContent"
                                                   class="form-control"
                                                   rows="4"
-                                                  required>@reply.Content</textarea>
+                                                  required
+                                                  minlength="2"
+                                                  maxlength="5000">@reply.Content</textarea>
                                     </div>
 
                                     <div class="form-actions">
+
                                         <button type="submit"
                                                 class="btn btn-primary">
                                             ذخیره تغییرات
@@ -343,13 +383,18 @@
                                                 onclick="hideEditForm('@reply.Id')">
                                             انصراف
                                         </button>
+
                                     </div>
+
                                 </form>
                             }
+
                         </article>
                     }
+
                 </div>
             }
+
         </section>
     }
 </div>
@@ -360,13 +405,13 @@
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
 
-
     <script>
         window.showAssignForm = function () {
             const form = document.getElementById("assignForm");
 
             if (form) {
                 form.classList.remove("hidden");
+
                 form.scrollIntoView({
                     behavior: "smooth",
                     block: "center"
@@ -387,6 +432,7 @@
 
             if (form) {
                 form.classList.remove("hidden");
+
                 form.scrollIntoView({
                     behavior: "smooth",
                     block: "center"
@@ -402,6 +448,4 @@
             }
         };
     </script>
-}
-
 }

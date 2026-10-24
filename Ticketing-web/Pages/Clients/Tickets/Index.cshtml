@@ -92,8 +92,11 @@
 
                             </td>
                             <td>
-                                <a href="/Agent/Tickets/Details/1001"
-                                   class="details-button">مشاهده</a>
+                                <a class="details-button"
+                                   asp-page="./Details"
+                                   asp-route-id="@item.Id">
+                                    مشاهده جزئیات
+                                </a>
                             </td>
                         </tr>
                     }
