@@ -109,4 +109,9 @@ public class TicketService : ITicketService
         return await _apiClient
              .GetAsync<GetTicketDetailsDto?>($"tickets/{id}/for-admin");
     }
+
+    public async Task<ApiResultDto<GetAgentTicketDetailsDto?>> GetDetailsForAgent(string id)
+    {
+        return await _apiClient.GetAsync<GetAgentTicketDetailsDto?>($"tickets/{id}/details-for-agent");
+    }
 }
