@@ -276,6 +276,7 @@
                                     <form method="post"
                                           asp-page-handler="Approve"
                                           asp-route-id="@Model.Id"
+                                          asp-route-replyId="@reply.Id"
                                           class="inline-form"
                                           onsubmit="return confirm('آیا از تأیید این پاسخ مطمئن هستید؟');">
 
@@ -311,6 +312,7 @@
                                 <form method="post"
                                       asp-page-handler="EditReply"
                                       asp-route-id="@Model.Id"
+                                      asp-route-replyId="@reply.Id"
                                       id="editForm-@reply.Id"
                                       class="edit-form hidden">
 

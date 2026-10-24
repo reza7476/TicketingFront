@@ -12,6 +12,17 @@ public class TicketReplyService : ITicketReplyService
         _apiClient = apiClient;
     }
 
+    public async Task<ApiResultDto<object>> Approve(string replyId)
+    {
+        var request = new
+        {
+            ReplyId=replyId
+        };
+        return await _apiClient
+            .PatchAsync<object,object>(
+            url: $"ticket-replies/approve-reply", request);
+    }
+
     public  async Task<ApiResultDto<object>> EditReply(
         string replyId,
         string editedContent)

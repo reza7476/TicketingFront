@@ -5,6 +5,7 @@ namespace Ticketing_web.Services.Replies;
 
 public interface ITicketReplyService : IService
 {
+    Task<ApiResultDto<object>> Approve(string replyId);
     Task<ApiResultDto<object>> EditReply(string replyId, string editedContent);
     Task<ApiResultDto<object>> ReplyByAgent(string id, string content);
 }

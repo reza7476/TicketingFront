@@ -4,6 +4,7 @@ using System.ComponentModel.DataAnnotations;
 using System.Net.WebSockets;
 using Ticketing_web.EntityModels.Tickets;
 using Ticketing_web.EntityModels.Users;
+using Ticketing_web.Services.Replies;
 using Ticketing_web.Services.Tickets;
 using Ticketing_web.Services.Users;
 
@@ -13,13 +14,17 @@ public class DetailsModel : PageModel
 {
     private readonly ITicketService _ticketService;
     private readonly IUserService _userService;
+    private readonly ITicketReplyService _replyService;
+
 
     public DetailsModel(
         ITicketService ticketService,
-        IUserService userService)
+        IUserService userService,
+        ITicketReplyService replyService)
     {
         _ticketService = ticketService;
         _userService = userService;
+        _replyService = replyService;
     }
 
     [BindProperty(SupportsGet = true)]
@@ -132,5 +137,85 @@ public class DetailsModel : PageModel
                 Title = ticketResult.Data.Title,
             };
         }
+    }
+
+
+
+    public async Task<IActionResult> OnPostApprove(
+        string id,
+        string replyId
+        )
+    {
+        if (string.IsNullOrWhiteSpace(replyId))
+        {
+            return NotFound();
+        }
+        Id = id;
+        await LoadTicketAsync();
+        if (Ticket == null)
+        {
+            ErrorMessage = "تیکت پیدا نشد.";
+            return Page();
+        }
+
+        var result = await _replyService.Approve(replyId);
+        if (result == null || !result.IsSuccess)
+        {
+            ErrorMessage = "تایید پاسخ ناموفق بود.";
+            await LoadTicketAsync();
+            return Page();
+        }
+
+        TempData["Message"] = "پاسخ با موفقیت تایید شد.";
+
+        return RedirectToPage("./Details", new { Id });
+    }
+
+
+
+    public async Task<IActionResult> OnPostEditReply(
+        string id,
+        string replyId,
+        string editedContent)
+    {
+        if (string.IsNullOrWhiteSpace(replyId))
+        {
+            return NotFound();
+        }
+        Id = id;
+        if (string.IsNullOrWhiteSpace(editedContent)
+            || editedContent.Trim().Length < 2
+            || editedContent.Length > 5000)
+        {
+            ErrorMessage = "متن پاسخ باید بین ۲ تا ۵۰۰۰ کاراکتر باشد.";
+            await LoadTicketAsync();
+            return Page();
+        }
+        await LoadTicketAsync();
+
+        if (Ticket == null)
+        {
+            ErrorMessage = "تیکت پیدا نشد.";
+            return Page();
+        }
+        var reply = Ticket.Replies.FirstOrDefault(x => x.Id == replyId);
+        if (reply == null)
+        {
+            ErrorMessage = "پاسخ موردنظر پیدا نشد.";
+            return Page();
+        }
+        var result = await _replyService.EditReply(
+           replyId,
+           editedContent);
+        if (result == null || !result.IsSuccess)
+        {
+            ErrorMessage = "ویرایش پاسخ ناموفق بود.";
+            await LoadTicketAsync();
+            return Page();
+        }
+
+        TempData["Message"] = "پاسخ با موفقیت ویرایش شد.";
+
+        return RedirectToPage("./Details", new { Id });
     }
 }
