@@ -14,7 +14,7 @@
             <p>مشاهده اطلاعات، تاریخچه ارجاعات و پاسخ‌ها</p>
         </div>
 
-        <a asp-page="/Agent/Tickets/Index" class="back-button">
+        <a asp-page="/Admin/Tickets/Index" class="back-button">
             بازگشت به فهرست
         </a>
     </div>
@@ -111,37 +111,62 @@
 
             @if (!isClosed)
             {
+
                 <form method="post"
                       asp-page-handler="Assign"
                       asp-route-id="@Model.Id"
                       id="assignForm"
                       class="assign-form hidden">
 
-                    <div class="form-group">
-                        <label asp-for="AssignedUserId">
-                            شناسه کاربر مقصد
-                        </label>
+                    <h3>انتخاب کارشناس برای ارجاع</h3>
 
-                        <input asp-for="AssignedUserId"
-                               class="form-control"
-                               placeholder="شناسه کاربر مقصد را وارد کنید" />
+                    @if (Model.Agents.Count == 0)
+                    {
+                        <p class="empty-state">
+                            هیچ کارشناس فعالی برای ارجاع پیدا نشد.
+                        </p>
+                    }
+                    else
+                    {
+                        <div class="agent-list">
+                            @foreach (var agent in Model.Agents)
+                            {
+                                <label class="agent-option">
+                                    <input type="radio"
+                                           name="AssignedUserId"
+                                           value="@agent.Id"
+                                           required />
 
-                        <span asp-validation-for="AssignedUserId"
-                              class="validation-error"></span>
-                    </div>
+                                    <span class="agent-card">
+                                        <span class="agent-avatar">
+                                            @agent.Name.FirstOrDefault()
+                                        </span>
 
-                    <div class="form-actions">
-                        <button type="submit" class="btn btn-primary">
-                            ثبت ارجاع
-                        </button>
+                                        <span class="agent-info">
+                                            <strong>@agent.FullName</strong>
+                                            <small>کارشناس پشتیبانی</small>
+                                        </span>
 
-                        <button type="button"
-                                class="btn btn-secondary"
-                                onclick="hideAssignForm()">
-                            انصراف
-                        </button>
-                    </div>
+                                        <span class="agent-check">✓</span>
+                                    </span>
+                                </label>
+                            }
+                        </div>
+
+                        <div class="form-actions">
+                            <button type="submit" class="btn btn-primary">
+                                تأیید و ارجاع تیکت
+                            </button>
+
+                            <button type="button"
+                                    class="btn btn-secondary"
+                                    onclick="hideAssignForm()">
+                                انصراف
+                            </button>
+                        </div>
+                    }
                 </form>
+
             }
         </section>
 
@@ -332,4 +357,49 @@
 
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
+
+
+    <script>
+        window.showAssignForm = function () {
+            const form = document.getElementById("assignForm");
+
+            if (form) {
+                form.classList.remove("hidden");
+                form.scrollIntoView({
+                    behavior: "smooth",
+                    block: "center"
+                });
+            }
+        };
+
+        window.hideAssignForm = function () {
+            const form = document.getElementById("assignForm");
+
+            if (form) {
+                form.classList.add("hidden");
+            }
+        };
+
+        window.showEditForm = function (replyId) {
+            const form = document.getElementById("editForm-" + replyId);
+
+            if (form) {
+                form.classList.remove("hidden");
+                form.scrollIntoView({
+                    behavior: "smooth",
+                    block: "center"
+                });
+            }
+        };
+
+        window.hideEditForm = function (replyId) {
+            const form = document.getElementById("editForm-" + replyId);
+
+            if (form) {
+                form.classList.add("hidden");
+            }
+        };
+    </script>
+}
+
 }

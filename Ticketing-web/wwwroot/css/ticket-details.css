@@ -388,6 +388,92 @@
     font-size: 12px;
 }
 
+.agent-list {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+    margin: 18px 0;
+}
+
+.agent-option {
+    cursor: pointer;
+    display: block;
+}
+
+    .agent-option input {
+        position: absolute;
+        opacity: 0;
+        pointer-events: none;
+    }
+
+.agent-card {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 14px;
+    border: 1px solid #dce3ec;
+    border-radius: 10px;
+    background: #fff;
+    transition: border-color 0.2s, background 0.2s;
+}
+
+.agent-option input:checked + .agent-card {
+    border-color: #285bc5;
+    background: #eef4ff;
+}
+
+.agent-option input:focus-visible + .agent-card {
+    outline: 2px solid #285bc5;
+    outline-offset: 3px;
+}
+
+.agent-avatar {
+    width: 42px;
+    height: 42px;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    background: #e4ecff;
+    color: #285bc5;
+    font-weight: bold;
+}
+
+.agent-info {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    flex: 1;
+    min-width: 0;
+}
+
+    .agent-info strong {
+        font-size: 14px;
+        overflow-wrap: anywhere;
+    }
+
+    .agent-info small {
+        font-size: 12px;
+        color: #718096;
+    }
+
+.agent-check {
+    display: none;
+    color: #285bc5;
+    font-weight: bold;
+}
+
+.agent-option input:checked + .agent-card .agent-check {
+    display: inline;
+}
+
+@media (max-width: 600px) {
+    .agent-list {
+        grid-template-columns: 1fr;
+    }
+}
+
 @media (max-width: 768px) {
     .ticket-page {
         padding: 0 10px 25px;

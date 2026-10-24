@@ -30,6 +30,11 @@ public class UserService : IUserService
           );
     }
 
+    public async Task<ApiResultDto<List<AgentOptionDto>>> GetAllAgents()
+    {
+        return await _apiClient.GetAsync<List<AgentOptionDto>>("users/agents");
+    }
+
     public async Task<ApiResultDto<GetAllDto<GetAllUsersDto>>>
         GetAllForAdministrator(string? search, UserFilterDto? filter)
     {

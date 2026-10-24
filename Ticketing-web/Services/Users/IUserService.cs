@@ -8,6 +8,7 @@ namespace Ticketing_web.Services.Users;
 public interface IUserService : IService
 {
     Task<ApiResultDto<string>> AddAsync(AddUserModel request);
+    Task<ApiResultDto<List<AgentOptionDto>>> GetAllAgents();
     Task<ApiResultDto<GetAllDto<GetAllUsersDto>>>
         GetAllForAdministrator(string? search=null,
         UserFilterDto? filter = null);

@@ -23,4 +23,5 @@ public interface ITicketService : IService
         int offset, int limit,
         TicketFilterDto filter,
         string? askedBy);
+    Task<ApiResultDto<object>> AssignTicketAsync(string id, string assignedUserId);
 }
