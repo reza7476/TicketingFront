@@ -13,7 +13,7 @@ public class TicketService : ITicketService
         _apiClient = apiClient;
     }
 
-    public async Task<ApiResultDto<object>> Add(AddTicketDto dto)
+    public async Task<ApiResultDto<string>> Add(AddTicketDto dto)
     {
         var request = new
         {
@@ -21,7 +21,7 @@ public class TicketService : ITicketService
             dto.Content,
             dto.Title,
         };
-        return await _apiClient.PostAsync<object, object>(
+        return await _apiClient.PostAsync<object, string>(
             "tickets/add",
             request);
     }

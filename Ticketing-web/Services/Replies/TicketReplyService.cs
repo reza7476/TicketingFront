@@ -34,14 +34,14 @@ public class TicketReplyService : ITicketReplyService
         return await _apiClient.PutAsync<object, object>($"ticket-replies/{replyId}", request);
     }
 
-    public async Task<ApiResultDto<object>> ReplyTicket(string id, string content)
+    public async Task<ApiResultDto<string>> ReplyTicket(string id, string content)
     {
         var request = new
         {
             TicketId = id,
             Content = content
         };
-        return await _apiClient.PostAsync<object>(
+        return await _apiClient.PostAsync<object,string>(
              "ticket-replies/reply",
              request);
     }
