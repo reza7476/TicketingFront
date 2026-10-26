@@ -13,6 +13,7 @@ public interface IUserService : IService
         GetAllForAdministrator(string? search=null,
         UserFilterDto? filter = null);
     Task<ApiResultDto<GetUserDetailsModel?>> GetDetails(string id);
+    Task<ApiResultDto<GetUserProfileDto?>> GetProfile();
     Task<ApiResultDto<object>> RegisterAgent(RegisterUserDto dto);
     Task<ApiResultDto<object>> RegisterClient(RegisterUserDto dto);
     Task<ApiResultDto<object>> UpdateUser(string id, UpdateUserRequest request);
