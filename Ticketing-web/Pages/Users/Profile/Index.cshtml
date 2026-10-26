@@ -1,0 +1,87 @@
+﻿@page
+@model Ticketing_web.Pages.Users.Profile.IndexModel
+@{
+}
+
+<div class="profile-page" dir="rtl">
+    <div class="profile-page-header">
+        <div>
+            <h4>پروفایل کاربری</h4>
+            <p>اطلاعات حساب کاربری شما</p>
+        </div>
+    </div>
+
+    <section class="profile-card">
+        <div class="profile-card-header">
+           @*  <div class="profile-avatar-container">
+                <img src="@Model.Profile.ProfileImageUrl"
+                     alt="عکس پروفایل"
+                     class="profile-avatar"
+                     onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" />
+
+                <div class="profile-avatar-fallback">
+                    @(string.IsNullOrWhiteSpace(Model.Profile.FirstName)
+                        ? "؟"
+                        : Model.Profile.FirstName[..1])
+                </div>
+            </div> *@
+
+            <div class="profile-heading">
+                <h5>
+                    @(string.IsNullOrWhiteSpace(Model.Profile.FirstName)
+                        && string.IsNullOrWhiteSpace(Model.Profile.LastName)
+                        ? "کاربر سامانه"
+                        : $"{Model.Profile.FirstName} {Model.Profile.LastName}")
+                </h5>
+
+               
+            </div>
+        </div>
+
+        <div class="profile-divider"></div>
+
+        <div class="profile-info-grid">
+            <div class="profile-info-item">
+                <span class="info-label">نام</span>
+                <span class="info-value">
+                    @DisplayValue(Model.Profile.FirstName)
+                </span>
+            </div>
+
+            <div class="profile-info-item">
+                <span class="info-label">نام خانوادگی</span>
+                <span class="info-value">
+                    @DisplayValue(Model.Profile.LastName)
+                </span>
+            </div>
+
+            <div class="profile-info-item">
+                <span class="info-label">نام کاربری</span>
+                <span class="info-value">
+                    @DisplayValue(Model.Profile.Mobile)
+                </span>
+            </div>
+
+            <div class="profile-info-item">
+                <span class="info-label">شماره تلفن</span>
+                <span class="info-value" dir="ltr">
+                    @DisplayValue(Model.Profile.Mobile)
+                </span>
+            </div>
+
+            <div class="profile-info-item profile-info-full">
+                <span class="info-label">ارگان</span>
+                <span class="info-value">
+                    @DisplayValue(Model.Profile.OrganName)
+                </span>
+            </div>
+        </div>
+    </section>
+</div>
+
+@functions {
+    public static string DisplayValue(string? value)
+    {
+        return string.IsNullOrWhiteSpace(value) ? "ثبت نشده" : value;
+    }
+}

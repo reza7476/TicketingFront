@@ -60,6 +60,9 @@
 
     <link rel="stylesheet" href="~/css/client-ticket-details.css"
           asp-append-version="true" />
+
+    <link rel="stylesheet" href="~/css/user-profile.css"
+          asp-append-version="true"/>
 </head>
 
 <body>
@@ -145,17 +148,18 @@
                     </a>
                 }
 
+                <a asp-page="/Users/Profile/Index" class="menu-link">
+                  <span>👤</span>
+                    پروفایل
+
+                </a>
 
                 <form method="post" asp-page="/Auth/Logout">
                     <button type="submit" class="btn btn-danger">
                         خروج
                     </button>
                 </form>
-
-                <a asp-page="/Profile" class="menu-link">
-                    <span>✉</span>
-                    پروفایل
-                </a>
+                
             </nav>
         </aside>
 

@@ -69,6 +69,11 @@ public class UserService : IUserService
             .GetAsync<GetUserDetailsModel?>($"users/{id}/details");
     }
 
+    public async Task<ApiResultDto<GetUserProfileDto?>> GetProfile()
+    {
+        return await _apiClient.GetAsync<GetUserProfileDto?>("users/profile");
+    }
+
     public Task<ApiResultDto<object>> RegisterAgent(RegisterUserDto dto)
     {
         var request = new
