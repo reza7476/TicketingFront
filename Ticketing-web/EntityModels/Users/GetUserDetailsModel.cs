@@ -7,5 +7,7 @@ public class GetUserDetailsModel
     public string Mobile { get; set; } = string.Empty;
     public string Organization { get; set; } = default!;
     public string Role { get; set; } = default!;
+    public string OrganizationId { get; set; } = default!;
+    public string RoleId { get; set; } = default!;
 }
 

@@ -21,4 +21,6 @@ public class EditUserInput
 
     [Required(ErrorMessage = "انتخاب نقش الزامی است.")]
     public string RoleId { get; set; } = default!;
+    public string? Role{ get; set; } 
+    public string? Organization { get; set; } 
 }

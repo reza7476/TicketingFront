@@ -5,8 +5,6 @@
     Layout = "_Layout";
 }
 
-
-
 <div class="edit-user-container" dir="rtl">
 
     <div class="edit-user-header">
@@ -71,7 +69,6 @@
                         <label asp-for="Input!.OrganizationId">سازمان</label>
                         <select asp-for="Input!.OrganizationId"
                                 asp-items="Model.Organizations">
-                            <option value="">انتخاب سازمان</option>
                         </select>
                         <span asp-validation-for="Input!.OrganizationId"
                               class="field-error"></span>
@@ -81,7 +78,6 @@
                         <label asp-for="Input!.RoleId">نقش</label>
                         <select asp-for="Input!.RoleId"
                                 asp-items="Model.Roles">
-                            <option value="">انتخاب نقش</option>
                         </select>
                         <span asp-validation-for="Input!.RoleId"
                               class="field-error"></span>
@@ -112,4 +108,3 @@
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
 }
-```
