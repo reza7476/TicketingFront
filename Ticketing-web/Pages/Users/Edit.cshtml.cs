@@ -55,50 +55,15 @@ public class EditModel : PageModel
             FirstName = result.Data.FirstName,
             LastName = result.Data.LastName,
             Mobile = result.Data.Mobile,
-            OrganizationId = result.Data.Organization,
-            RoleId = result.Data.Role
+            OrganizationId = result.Data.OrganizationId,
+            RoleId = result.Data.RoleId,
+            Organization=result.Data.Organization,
+            Role=result.Data.Role
         };
 
         await LoadDropdownsAsync();
 
         return Page();
-    }
-
-
-    private async Task LoadDropdownsAsync()
-    {
-        var organizationsResult = await _organService.GetAll();
-
-        if (organizationsResult.IsSuccess &&
-            organizationsResult.Data != null)
-        {
-            Organizations = organizationsResult.Data
-                .Select(o => new SelectListItem
-                {
-                    Text = o.Name,
-                    Value = o.Id.ToString(),
-                    Selected = o.Id.ToString() == Input?.OrganizationId
-                })
-                .ToList();
-        }
-
-        var rolesResult = await _roleService.GetAll();
-
-        if (rolesResult.IsSuccess && rolesResult.Data != null)
-        {
-            Roles = rolesResult.Data
-                .Where(r => !string.Equals(
-                    r.Title,
-                    "Administrator",
-                    StringComparison.OrdinalIgnoreCase))
-                .Select(r => new SelectListItem
-                {
-                    Text = r.Title,
-                    Value = r.Id.ToString(),
-                    Selected = r.Id.ToString() == Input?.RoleId
-                })
-                .ToList();
-        }
     }
 
     public async Task<IActionResult> OnPostAsync()
@@ -158,6 +123,43 @@ public class EditModel : PageModel
 
         return RedirectToPage("./Index");
     }
+
+    private async Task LoadDropdownsAsync()
+    {
+        var organizationsResult = await _organService.GetAll();
+
+        if (organizationsResult.IsSuccess &&
+            organizationsResult.Data != null)
+        {
+            Organizations = organizationsResult.Data
+                .Select(o => new SelectListItem
+                {
+                    Text = o.Name,
+                    Value = o.Id.ToString(),
+                    Selected = o.Id.ToString() == Input?.OrganizationId
+                })
+                .ToList();
+        }
+
+        var rolesResult = await _roleService.GetAll();
+
+        if (rolesResult.IsSuccess && rolesResult.Data != null)
+        {
+            Roles = rolesResult.Data
+                .Where(r => !string.Equals(
+                    r.Title,
+                    "Administrator",
+                    StringComparison.OrdinalIgnoreCase))
+                .Select(r => new SelectListItem
+                {
+                    Text = r.Title,
+                    Value = r.Id.ToString(),
+                    Selected = r.Id.ToString() == Input?.RoleId
+                })
+                .ToList();
+        }
+    }
+
 
 
 }
