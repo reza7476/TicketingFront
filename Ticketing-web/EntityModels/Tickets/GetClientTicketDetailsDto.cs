@@ -1,4 +1,6 @@
-﻿namespace Ticketing_web.EntityModels.Tickets;
+﻿using Ticketing_web.EntityModels.Documents;
+
+namespace Ticketing_web.EntityModels.Tickets;
 
 public class GetClientTicketDetailsDto
 {
@@ -10,6 +12,7 @@ public class GetClientTicketDetailsDto
     public TicketStatus Status { get; set; }
     public Priority Priority { get; set; }
     public List<TicketClientRepliesDto> Replies { get; set; } = new();
+    public List<DocumentDto> Documents { get; set; } = new();
 }
 public class TicketClientRepliesDto
 {
@@ -18,4 +21,5 @@ public class TicketClientRepliesDto
     public string Content { get; set; } = default!;
     public string IssuedBy { get; set; } = default!;    //نقش پاسخ دهنده 
     public DateTime CreatedAt { get; set; }
+    public List<DocumentDto> Documents { get; set; } = new();
 }
