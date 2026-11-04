@@ -20,6 +20,7 @@ public class TicketService : ITicketService
             dto.Priority,
             dto.Content,
             dto.Title,
+            dto.Document
         };
         return await _apiClient.PostAsync<object, string>(
             "tickets/add",
