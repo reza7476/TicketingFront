@@ -178,4 +178,32 @@ public class ApiClient
         return result;
     }
 
+
+    public async Task<ApiResultDto<TResponse>> PostFileAsync<TResponse>(
+    string url,
+    IFormFile file,
+    CancellationToken cancellationToken = default)
+    {
+        AddAuthorizationHeader();
+
+        using var content = new MultipartFormDataContent();
+
+        await using var stream = file.OpenReadStream();
+
+        using var fileContent = new StreamContent(stream);
+
+        fileContent.Headers.ContentType =
+            new System.Net.Http.Headers.MediaTypeHeaderValue(file.ContentType);
+
+        content.Add(fileContent, "file", file.FileName);
+
+        using var response = await _httpClient.PostAsync(
+            url,
+            content,
+            cancellationToken);
+
+        return await HandleResponse<TResponse>(
+            response, cancellationToken);
+    }
+
 }

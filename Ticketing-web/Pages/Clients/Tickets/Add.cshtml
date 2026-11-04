@@ -4,6 +4,101 @@
     Layout = "_Layout";
 }
 
+<style>
+    .file-upload-area {
+        border: 2px dashed #ced4da;
+        border-radius: 10px;
+        padding: 25px;
+        text-align: center;
+        cursor: pointer;
+        background: #fafafa;
+        transition: .2s;
+    }
+
+    .file-upload-area:hover {
+        border-color: #0d6efd;
+        background: #f3f7ff;
+    }
+
+    .file-upload-area i {
+        font-size: 32px;
+        color: #6c757d;
+    }
+
+    .file-preview {
+        display: none;
+        margin-top: 15px;
+        padding: 12px;
+        border: 1px solid #dee2e6;
+        border-radius: 10px;
+        background: #fff;
+    }
+
+    .file-preview-content {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+    }
+
+    .file-preview img {
+        width: 90px;
+        height: 90px;
+        object-fit: cover;
+        border-radius: 8px;
+        border: 1px solid #dee2e6;
+    }
+
+    .file-icon {
+        width: 90px;
+        height: 90px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: #f1f3f5;
+        border-radius: 8px;
+        font-size: 35px;
+        color: #495057;
+        flex-shrink: 0;
+    }
+
+    .file-info {
+        flex: 1;
+        min-width: 0;
+    }
+
+    .file-name {
+        font-weight: 600;
+        overflow-wrap: anywhere;
+    }
+
+    .file-size {
+        color: #6c757d;
+        font-size: 13px;
+        margin-top: 5px;
+    }
+
+    .remove-file-button {
+        border: none;
+        background: #fff0f0;
+        color: #dc3545;
+        border-radius: 7px;
+        padding: 8px 12px;
+        cursor: pointer;
+        white-space: nowrap;
+    }
+
+    .remove-file-button:hover {
+        background: #dc3545;
+        color: white;
+    }
+
+    .file-error {
+        color: #dc3545;
+        font-size: 13px;
+        margin-top: 8px;
+        display: none;
+    }
+</style>
 
 <div class="tickets-page">
 
@@ -20,7 +115,7 @@
 
     <div class="tickets-panel">
 
-        <form method="post">
+        <form method="post" enctype="multipart/form-data">
 
             <div asp-validation-summary="ModelOnly"
                  class="text-danger"></div>
@@ -68,6 +163,83 @@
                       class="text-danger"></span>
             </div>
 
+            <!-- File Upload -->
+            <div class="mb-3">
+
+                <label class="form-label">
+                    فایل پیوست (اختیاری)
+                </label>
+
+                <label for="Document" class="file-upload-area d-block">
+
+                    <div>
+                        <i class="bi bi-cloud-arrow-up"></i>
+                    </div>
+
+                    <div class="fw-bold mt-2">
+                        انتخاب فایل یا تصویر
+                    </div>
+
+                    <small class="text-muted">
+                        فرمت‌های مجاز: JPG، PNG، PDF، DOC، DOCX، XLSX
+                    </small>
+
+                    <br />
+
+                    <small class="text-muted">
+                        حداکثر حجم فایل: ۱۰ مگابایت
+                    </small>
+
+                </label>
+
+                <input asp-for="Document"
+                       type="file"
+                       class="form-control d-none"
+                       accept=".jpg,.jpeg,.png,.pdf,.doc,.docx,.xlsx"
+                       id="Document" />
+
+                <div id="fileError" class="file-error"></div>
+
+                <span asp-validation-for="Document"
+                      class="text-danger"></span>
+
+                <!-- Preview -->
+                <div id="filePreview" class="file-preview">
+
+                    <div class="file-preview-content">
+
+                        <img id="imagePreview"
+                             src=""
+                             alt="پیش‌نمایش تصویر"
+                             style="display:none;" />
+
+                        <div id="fileIcon" class="file-icon">
+                            <i class="bi bi-file-earmark"></i>
+                        </div>
+
+                        <div class="file-info">
+
+                            <div id="fileName" class="file-name"></div>
+
+                            <div id="fileSize" class="file-size"></div>
+
+                        </div>
+
+                        <button type="button"
+                                id="removeFile"
+                                class="remove-file-button">
+
+                            <i class="bi bi-trash"></i>
+                            حذف فایل
+
+                        </button>
+
+                    </div>
+
+                </div>
+
+            </div>
+
             <button type="submit" class="add-ticket-button">
                 ثبت تیکت
             </button>
@@ -78,5 +250,131 @@
 </div>
 
 @section Scripts {
+
     <partial name="_ValidationScriptsPartial" />
+
+    <script>
+        const fileInput = document.getElementById('Document');
+        const filePreview = document.getElementById('filePreview');
+        const imagePreview = document.getElementById('imagePreview');
+        const fileIcon = document.getElementById('fileIcon');
+        const fileName = document.getElementById('fileName');
+        const fileSize = document.getElementById('fileSize');
+        const fileError = document.getElementById('fileError');
+        const removeFileButton = document.getElementById('removeFile');
+
+        const maxFileSize = 10 * 1024 * 1024;
+
+        let currentImageUrl = null;
+
+        function formatFileSize(bytes) {
+            return bytes >= 1024 * 1024
+                ? (bytes / (1024 * 1024)).toFixed(2) + ' MB'
+                : (bytes / 1024).toFixed(2) + ' KB';
+        }
+
+        function clearPreview() {
+
+            if (currentImageUrl) {
+                URL.revokeObjectURL(currentImageUrl);
+                currentImageUrl = null;
+            }
+
+            fileInput.value = '';
+
+            filePreview.style.display = 'none';
+            imagePreview.style.display = 'none';
+            fileIcon.style.display = 'flex';
+
+            imagePreview.src = '';
+
+            fileError.style.display = 'none';
+            fileError.textContent = '';
+        }
+
+        fileInput.addEventListener('change', function () {
+
+            fileError.style.display = 'none';
+
+            const file = this.files[0];
+
+            if (!file) {
+                clearPreview();
+                return;
+            }
+
+            if (file.size > maxFileSize) {
+
+                clearPreview();
+
+                fileError.textContent =
+                    'حجم فایل نباید بیشتر از ۱۰ مگابایت باشد.';
+
+                fileError.style.display = 'block';
+
+                return;
+            }
+
+            const extension = file.name
+                .split('.')
+                .pop()
+                .toLowerCase();
+
+            const allowedExtensions = [
+                'jpg', 'jpeg', 'png',
+                'pdf', 'doc', 'docx', 'xlsx'
+            ];
+
+            if (!allowedExtensions.includes(extension)) {
+
+                clearPreview();
+
+                fileError.textContent =
+                    'فرمت فایل انتخاب‌شده مجاز نیست.';
+
+                fileError.style.display = 'block';
+
+                return;
+            }
+
+            fileName.textContent = file.name;
+            fileSize.textContent = formatFileSize(file.size);
+
+            if (file.type.startsWith('image/') &&
+                ['jpg', 'jpeg', 'png'].includes(extension)) {
+
+                currentImageUrl = URL.createObjectURL(file);
+
+                imagePreview.src = currentImageUrl;
+                imagePreview.style.display = 'block';
+                fileIcon.style.display = 'none';
+
+            } else {
+
+                imagePreview.style.display = 'none';
+                fileIcon.style.display = 'flex';
+
+                let iconClass = 'bi-file-earmark';
+
+                if (extension === 'pdf')
+                    iconClass = 'bi-file-earmark-pdf';
+
+                else if (['doc', 'docx'].includes(extension))
+                    iconClass = 'bi-file-earmark-word';
+
+                else if (extension === 'xlsx')
+                    iconClass = 'bi-file-earmark-excel';
+
+                fileIcon.innerHTML =
+                    `<i class="bi ${iconClass}"></i>`;
+            }
+
+            filePreview.style.display = 'block';
+        });
+
+        removeFileButton.addEventListener('click', function () {
+            clearPreview();
+        });
+    </script>
 }
+```
