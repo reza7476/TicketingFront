@@ -1,6 +1,8 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using Ticketing_web.EntityModels.Documents;
 using Ticketing_web.EntityModels.Tickets;
+using Ticketing_web.Services.FileStorage;
 using Ticketing_web.Services.Replies;
 using Ticketing_web.Services.Tickets;
 
@@ -10,14 +12,16 @@ public class DetailsModel : PageModel
 {
     private readonly ITicketService _ticketService;
     private readonly ITicketReplyService _replyService;
-
+    private readonly IFileService _fileService;
 
     public DetailsModel(
         ITicketService ticketService,
-        ITicketReplyService replyService)
+        ITicketReplyService replyService,
+        IFileService fileService)
     {
         _ticketService = ticketService;
         _replyService = replyService;
+        _fileService = fileService;
     }
     public string Id { get; private set; } = string.Empty;
 
@@ -31,6 +35,8 @@ public class DetailsModel : PageModel
     [BindProperty]
     public string EditedContent { get; set; } = string.Empty;
 
+    [BindProperty]
+    public IFormFile? Document { get; set; }
     public string? Message { get; private set; }
 
     public string? ErrorMessage { get; private set; }
@@ -74,10 +80,22 @@ public class DetailsModel : PageModel
             ErrorMessage = "در وضعیت فعلی امکان ثبت پاسخ وجود ندارد.";
             return Page();
         }
+        DocumentDto? document = null;
+        if (Document != null && Document.Length>0)
+        {
+            document = await UploadFile(Document);
+            if(document == null)
+            {
+                await LoadTicketAsync();
+                return Page();
+            }
 
+        }
         var result = await _replyService.ReplyTicket(
             Id,
-            ReplyContent);
+            ReplyContent,
+            document
+            );
 
         if (result is null || !result.IsSuccess)
         {
@@ -125,10 +143,10 @@ public class DetailsModel : PageModel
             return Page();
         }
 
-        
+
 
         var result = await _replyService.EditReply(
-            
+
             ReplyId,
             EditedContent.Trim());
 
@@ -164,5 +182,25 @@ public class DetailsModel : PageModel
         var length = content.Trim().Length;
 
         return length >= 2 && length <= 5000;
+    }
+
+
+
+    private async Task<DocumentDto?> UploadFile(IFormFile? file)
+    {
+        if (file == null)
+            return null;
+        var fileResult = await _fileService.Upload(file);
+
+        if (fileResult is null || !fileResult.IsSuccess || fileResult.Data == null)
+        {
+            ErrorMessage = fileResult?.Error ?? "آپلود فایل ناموفق بود.";
+            return null;
+        }
+        return new DocumentDto
+        {
+            DocumentId = fileResult.Data.DocumentId,
+            Extension = fileResult.Data.Extension
+        };
     }
 }

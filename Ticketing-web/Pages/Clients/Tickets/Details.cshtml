@@ -81,55 +81,197 @@
                 <div class="ticket-documents">
                  <h3>فایل های پیوست</h3>
 
-                        @foreach (var document in Model.Ticket.Documents)
-                        {
-                            var isImage = document.Extension.StartsWith(
-                            "image/",
-                            StringComparison.OrdinalIgnoreCase
-                            );
+                      @foreach (var document in Model.Ticket.Documents)
+                      {
+                          var isImage = document.Extension.StartsWith(
+                          "image/",
+                          StringComparison.OrdinalIgnoreCase
+                          );
 
-                            <div class="document-item">
+                          <div class="document-item">
 
-                                @if (isImage)
-                                {
-                                    <img src="https://api-ticketing.rdehghani.ir/api/storages/@document.DocumentId/download"
-                                         alt="تصویر پیوست" />
-                                }
-                                else
-                                {
-                                    <div class="file-placeholder">
-                                        <span>📄</span>
-                                        <p>فایل پیوست</p>
-                                    </div>
-                                }
+                              @if (isImage)
+                              {
+                                  <img src="https://api-ticketing.rdehghani.ir/api/storages/@document.DocumentId/download"
+                                       alt="تصویر پیوست" />
+                              }
+                              else
+                              {
+                                  <div class="file-placeholder">
+                                      <span>📄</span>
+                                      <p>فایل پیوست</p>
+                                  </div>
+                              }
 
-                                <a href="https://api-ticketing.rdehghani.ir/api/storages/@document.DocumentId/download"
-                                   target="_blank">
-                                    دانلود فایل
-                                </a>
+                              <a href="https://api-ticketing.rdehghani.ir/api/storages/@document.DocumentId/download"
+                                 target="_blank">
+                                  دانلود فایل
+                              </a>
 
-                            </div>
-                        }
+                          </div>
+                      }
                 </div>
             }
 
         </section>
         <section class="conversation">
             <h2>گفتگوها</h2>
-        </section>
-        <section class="reply-form">
-            <h2>پاسخ</h2>
+                <div class="chat-container">
+
+                    @foreach (var reply in Model.Ticket.Replies)
+                    {
+                        var isMine = reply.IssuedBy == "Client";
+
+                        <div class="message-row @(isMine ? "mine" : "other")">
+
+                            <div class="message-bubble">
+
+                                <div class="message-text">
+                                    @reply.Content
+                                </div>
+
+                                @if (reply.Documents != null && reply.Documents.Any())
+                                {
+                                    <div class="reply-document">
+                                        @foreach (var document in reply.Documents)
+                                        {
+                                            var downloadUrl = $"https://api-ticketing.rdehghani.ir/api/storages/{document.DocumentId}/download";
+
+                                            var isImage = document.Extension.StartsWith(
+                                            "image/",
+                                            StringComparison.OrdinalIgnoreCase
+                                            );
+
+                                            <div class="reply-document-item">
+
+                                                @if (isImage)
+                                                {
+                                                    <a href="@downloadUrl" target="_blank">
+                                                        <img src="@downloadUrl"
+                                                             alt="تصویر پیوست"
+                                                             class="reply-document-image" />
+                                                    </a>
+                                                }
+                                                else
+                                                {
+                                                    <div class="reply-file-placeholder">
+                                                        📄 <span>فایل پیوست</span>
+                                                    </div>
+                                                }
+
+                                                <a href="@downloadUrl" target="_blank">
+                                                    دانلود فایل
+                                                </a>
+
+                                            </div>
+                                        }
+
+                                    </div>
+                                }
 
 
-            <div class="chat-container">
-                <article class="my-message" >
-                    پاسخ من
-                </article>
-                <article class="other-message">
-                    پاسخ دیگری
-                </article>
-            </div>
+                                <div class="message-footer">
+                                    <span class="message-role">@reply.IssuedBy</span>
+
+                                    <span class="message-time">
+                                        @reply.CreatedAt.ToString("yyyy/MM/dd HH:mm")
+                                    </span>
+                                </div>
+
+                            </div>
+
+                        </div>
+                    }
+
+                </div>
         </section>
+
+            @if (Model.Ticket.Status == TicketStatus.Answered)
+            {
+                <section class="reply-form" >
+                    <h2> ارسال پاسخ</h2>
+                    <form method="post" enctype="multipart/form-data"
+                        asp-page-handler="Reply">
+                        <div class="form-group">
+                            <label asp-for="ReplyContent" >متن پاسخ</label>
+                            <textarea 
+                                asp-for="ReplyContent"
+                                placeholder="پاسخ خود را بنویسید"
+                                rows="5"></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label for="replyFile" ></label>
+                            <input type="file" id="replyFile" asp-for="Document" />
+                        </div>
+                        
+                        <div id="reply-file-preview" class="file-preview">
+                            <img
+                                id="reply-image-preview" 
+                                src="" 
+                                alt=""
+                                style="display:none"/>
+                            <span id="reply-file-name" ></span>
+
+                            <button type="button" id="remove-reply-file" >
+                                حذف فایل
+                            </button>
+                        </div>
+
+                        <button type="submit" >ارسال پاسخ</button>
+                    </form>
+                </section>
+            }
+
     </main>
 </div>
+}
+@section Scripts{
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        $(()=>{
+            $("#replyFile").on("change", function () {
+                const file = this.files[0];
+                if (!file) {
+                    return;
+                }
+
+                $("#reply-file-name").text(file.name);
+                if (file.type.startsWith("image/")) {
+
+                    const reader = new FileReader();
+
+                    reader.onload = function (e) {
+
+                        $("#reply-image-preview")
+                            .attr("src", e.target.result)
+                            .show();
+                    };
+                    reader.readAsDataURL(file);
+                } else {
+
+                    $("#reply-image-preview")
+                        .attr("src", "")
+                        .hide();
+
+                }
+                $("#reply-file-preview").show();
+
+            });
+            $("#remove-reply-file").on("click", function () {
+
+                $("#replyFile").val("");
+
+                $("#reply-image-preview")
+                    .attr("src", "")
+                    .hide();
+
+                $("#reply-file-name").text("");
+
+                $("#reply-file-preview").hide();
+
+            });
+
+
+        })
+    </script>
 }

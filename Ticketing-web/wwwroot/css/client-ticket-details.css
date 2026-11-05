@@ -151,6 +151,240 @@
     font-weight: 600;
 }
 
+
+
+
+.conversation {
+    background-color: #f0f2f5;
+    padding: 24px;
+    margin-top: 20px;
+    border-radius: 12px;
+}
+
+    .conversation h2 {
+        font-size: 20px;
+        margin-bottom: 24px;
+        color: #333;
+    }
+
+.chat-container {
+    direction: rtl;
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+    padding: 10px 0;
+}
+
+/* ردیف پیام */
+.message-row {
+    display: flex;
+    width: 100%;
+}
+
+    /* پیام کاربر فعلی: سمت راست */
+    .message-row.mine {
+        justify-content: flex-start;
+    }
+
+    /* پیام سایر افراد: سمت چپ */
+    .message-row.other {
+        justify-content: flex-end;
+    }
+
+/* کادر پیام */
+.message-bubble {
+    max-width: 70%;
+    min-width: 180px;
+    padding: 12px 16px 8px;
+    border-radius: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08);
+}
+
+/* پیام کاربر */
+.message-row.mine .message-bubble {
+    background-color: #d9fdd3;
+    border-bottom-right-radius: 3px;
+}
+
+/* پیام Agent یا Admin */
+.message-row.other .message-bubble {
+    background-color: #ffffff;
+    border-bottom-left-radius: 3px;
+}
+
+.message-text {
+    font-size: 14px;
+    line-height: 1.9;
+    color: #222;
+    overflow-wrap: anywhere;
+    white-space: pre-wrap;
+}
+
+.message-footer {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 10px;
+    font-size: 11px;
+    color: #667781;
+}
+
+.message-role {
+    font-weight: 600;
+}
+
+.message-time {
+    direction: ltr;
+}
+
+@media (max-width: 600px) {
+    .conversation {
+        padding: 16px;
+    }
+
+    .message-bubble {
+        max-width: 88%;
+        min-width: 0;
+    }
+}
+
+.reply-documents {
+    margin-top: 12px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+}
+
+.reply-document-item {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    max-width: 220px;
+}
+
+.reply-document-image {
+    width: 200px;
+    max-height: 180px;
+    object-fit: cover;
+    border-radius: 8px;
+    cursor: pointer;
+}
+
+.reply-document-item a {
+    font-size: 13px;
+    color: #2563eb;
+    text-decoration: none;
+}
+
+.reply-file-placeholder {
+    width: 200px;
+    padding: 18px;
+    background: #f1f5f9;
+    border-radius: 8px;
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+
+
+
+
+
+
+.reply-form {
+    background-color: #fff;
+    padding: 24px;
+    border-radius: 12px;
+    margin-top: 24px;
+}
+
+    .reply-form h2 {
+        font-size: 18px;
+        margin-bottom: 20px;
+    }
+
+    .reply-form .form-group {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .reply-form label {
+        font-size: 14px;
+        font-weight: 600;
+        color: #344054;
+    }
+
+    .reply-form input[type="file"] {
+        width: 100%;
+        padding: 12px;
+        border: 1px dashed #98a2b3;
+        border-radius: 8px;
+        background-color: #f9fafb;
+        cursor: pointer;
+    }
+
+.file-preview {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    padding: 12px;
+    margin-top: 12px;
+    background-color: #f2f4f7;
+    border: 1px solid #e4e7ec;
+    border-radius: 10px;
+}
+
+#reply-image-preview {
+    width: 90px;
+    height: 90px;
+    object-fit: cover;
+    border-radius: 8px;
+}
+
+#reply-file-info {
+    flex: 1;
+    min-width: 0;
+}
+
+#reply-file-name {
+    font-size: 13px;
+    color: #344054;
+    overflow-wrap: anywhere;
+}
+
+#remove-reply-file {
+    border: none;
+    background-color: #fee4e2;
+    color: #b42318;
+    padding: 8px 12px;
+    border-radius: 7px;
+    cursor: pointer;
+    font-size: 12px;
+}
+
+    #remove-reply-file:hover {
+        background-color: #fecdca;
+    }
+
+.reply-form button[type="submit"] {
+    margin-top: 18px;
+    padding: 11px 24px;
+    border: none;
+    border-radius: 8px;
+    background-color: #1570ef;
+    color: #fff;
+    font-size: 14px;
+    cursor: pointer;
+}
+
+    .reply-form button[type="submit"]:hover {
+        background-color: #175cd3;
+    }
+
 @media (max-width: 600px) {
     .document-item {
         flex-direction: column;
@@ -162,4 +396,24 @@
             height: auto;
             max-height: 250px;
         }
+    .reply-form {
+        padding: 16px;
+    }
+
+    .file-preview {
+        flex-wrap: wrap;
+    }
+
+    #reply-image-preview {
+        width: 75px;
+        height: 75px;
+    }
+
+    #remove-reply-file {
+        width: 100%;
+    }
+
+    .reply-form button[type="submit"] {
+        width: 100%;
+    }
 }

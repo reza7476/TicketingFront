@@ -1,4 +1,5 @@
 ﻿using Ticketing_web.EntityModels.Commons;
+using Ticketing_web.EntityModels.Documents;
 using Ticketing_web.Services.Http;
 
 namespace Ticketing_web.Services.Replies;
@@ -34,12 +35,16 @@ public class TicketReplyService : ITicketReplyService
         return await _apiClient.PutAsync<object, object>($"ticket-replies/{replyId}", request);
     }
 
-    public async Task<ApiResultDto<string>> ReplyTicket(string id, string content)
+    public async Task<ApiResultDto<string>> ReplyTicket(
+        string id, 
+        string content, 
+        DocumentDto? document=null)
     {
         var request = new
         {
             TicketId = id,
-            Content = content
+            Content = content,
+            document
         };
         return await _apiClient.PostAsync<object,string>(
              "ticket-replies/reply",
