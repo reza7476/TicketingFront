@@ -33,10 +33,24 @@ public class DetailsModel : PageModel
     public string ReplyId { get; set; } = string.Empty;
 
     [BindProperty]
-    public string EditedContent { get; set; } = string.Empty;
+    public string EditedReplyContent { get; set; } = string.Empty;
+
+    [BindProperty]
+    public string TicketContent { get; set; } = default!;
+
+    [BindProperty]
+    public string Title { get; set; } = default!;
+
+    [BindProperty]
+    public Priority Priority { get; set; } = default!;
+
+
 
     [BindProperty]
     public IFormFile? Document { get; set; }
+    [BindProperty]
+    public IFormFile? TicketDocument { get; set; }
+
     public string? Message { get; private set; }
 
     public string? ErrorMessage { get; private set; }
@@ -81,10 +95,10 @@ public class DetailsModel : PageModel
             return Page();
         }
         DocumentDto? document = null;
-        if (Document != null && Document.Length>0)
+        if (Document != null && Document.Length > 0)
         {
             document = await UploadFile(Document);
-            if(document == null)
+            if (document == null)
             {
                 await LoadTicketAsync();
                 return Page();
@@ -117,7 +131,7 @@ public class DetailsModel : PageModel
 
         Id = id;
 
-        if (!IsValidContent(EditedContent))
+        if (!IsValidContent(EditedReplyContent))
         {
             ErrorMessage = "متن پاسخ باید بین ۲ تا ۵۰۰۰ کاراکتر باشد.";
             await LoadTicketAsync();
@@ -148,7 +162,7 @@ public class DetailsModel : PageModel
         var result = await _replyService.EditReply(
 
             ReplyId,
-            EditedContent.Trim());
+            EditedReplyContent.Trim());
 
         if (result is null || !result.IsSuccess)
         {
@@ -160,6 +174,114 @@ public class DetailsModel : PageModel
 
         return RedirectToPage("./Details", new { id = Id });
     }
+
+    public async Task<IActionResult> OnPostDeleteTicketDocument(
+        string documentId,
+        string id)
+    {
+        Id = id;
+        var removeResult = await _fileService.Delete(documentId);
+        if (!removeResult.IsSuccess)
+        {
+            ErrorMessage = removeResult?.Error ?? "حذف فایل ناموفق بود.";
+            await LoadTicketAsync();
+            return Page();
+        }
+
+        var result = await _ticketService.DeleteDocument(id, documentId);
+
+        if (result is null || !result.IsSuccess)
+        {
+            ErrorMessage = result?.Error ?? "ثبت فایل ناموفق بود.";
+            return Page();
+        }
+
+        TempData["Message"] = " حذف فایل با موفقیت انجام شد ";
+
+        return RedirectToPage("./Details", new { id = Id });
+    }
+
+    public async Task<IActionResult> OnPostEditTicket(
+        string content,
+        string title,
+        Priority priority,string id)
+    {
+
+        Id = id;
+        if (string.IsNullOrWhiteSpace(id))
+            return NotFound();
+
+        Id = id;
+        TicketContent=content;
+        Title = title;
+        Priority= priority; 
+
+
+        if (!IsValidContent(TicketContent))
+        {
+            ErrorMessage = "متن  باید بین ۲ تا ۵۰۰۰ کاراکتر باشد.";
+            await LoadTicketAsync();
+            return Page();
+        }
+        if (!IsValidContent(Title))
+        {
+            ErrorMessage = "عنوان نباید خالی باشد";
+            await LoadTicketAsync();
+            return Page();
+        }
+        var result = await _ticketService.EditTicket(new EditTicketDto()
+        {
+           Priority = priority,
+           Title = Title,
+           Content = TicketContent,
+           TicketId=Id
+        });
+
+        if(!result.IsSuccess)
+        {
+            ErrorMessage ??= result?.Error ?? "دریافت اطلاعات تیکت ناموفق بود.";
+            await LoadTicketAsync();
+            return Page();
+        }
+
+        TempData["Message"] = "تیکت با موفقیت ویرایش شد.";
+
+        return RedirectToPage("./Details", new { id = Id });
+    }
+
+
+    public async Task<IActionResult> OnPostSendFile(string id)
+    {
+        if (string.IsNullOrWhiteSpace(id))
+        {
+            return NotFound();
+        }
+
+        Id = id;
+
+        DocumentDto? document = null;
+        if (Document != null && Document.Length > 0)
+        {
+            document = await UploadFile(Document);
+            if (document == null)
+            {
+                await LoadTicketAsync();
+                return Page();
+            }
+        }
+
+        var result = await _ticketService.AddFile(id, document);
+        if (result is null || !result.IsSuccess)
+        {
+            ErrorMessage = result?.Error ?? "ثبت فایل ناموفق بود.";
+            return Page();
+        }
+
+        TempData["Message"] = "فایل با موفقیت ثبت شد.";
+
+        return RedirectToPage("./Details", new { id = Id });
+    }
+
 
     private async Task LoadTicketAsync()
     {
@@ -183,8 +305,6 @@ public class DetailsModel : PageModel
 
         return length >= 2 && length <= 5000;
     }
-
-
 
     private async Task<DocumentDto?> UploadFile(IFormFile? file)
     {

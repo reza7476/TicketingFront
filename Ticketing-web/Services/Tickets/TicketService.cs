@@ -1,4 +1,5 @@
 ﻿using Ticketing_web.EntityModels.Commons;
+using Ticketing_web.EntityModels.Documents;
 using Ticketing_web.EntityModels.Tickets;
 using Ticketing_web.Services.Http;
 
@@ -27,6 +28,18 @@ public class TicketService : ITicketService
             request);
     }
 
+    public async Task<ApiResultDto<object>> AddFile(
+        string id,
+        DocumentDto? document)
+    {
+        var request = new
+        {
+            id,
+            document
+        };
+        return await _apiClient.PostAsync("tickets/add-file", request);
+    }
+
     public async Task<ApiResultDto<object>> AssignTicketAsync(string id, string assignedUserId)
     {
         var request = new
@@ -38,12 +51,31 @@ public class TicketService : ITicketService
         return await _apiClient.PostAsync<object>("tickets/assign-to-agent", request);
     }
 
+    public async Task<ApiResultDto<object>> DeleteDocument(string id, string documentId)
+    {
+        return await _apiClient.DeleteAsync<object>($"tickets/{id}/document/{documentId}/remove-file");
+    }
+
+    public async Task<ApiResultDto<object>> EditTicket(EditTicketDto dto)
+    {
+        var request = new
+        {
+            dto.TicketId,
+            dto.Priority,
+            dto.Content,
+            dto.Title
+        };
+
+        return await _apiClient.PutAsync<object>("tickets/edit", request);
+
+    }
+
     public async Task<ApiResultDto<GetAllDto<AgentAllTicketDto>>>
         GetAllAgentTickets(TicketFilterDto filter)
     {
         var queryParams = new List<string>();
 
-       if(filter != null)
+        if (filter != null)
         {
             if (filter.Status != null)
             {
@@ -96,7 +128,7 @@ public class TicketService : ITicketService
             $"tickets/get-all-for-admin?{queryString}");
     }
 
-    public async  Task<ApiResultDto<GetClientTicketDetailsDto?>> GetClientTicketDetails(string id)
+    public async Task<ApiResultDto<GetClientTicketDetailsDto?>> GetClientTicketDetails(string id)
     {
         return await _apiClient
              .GetAsync<GetClientTicketDetailsDto?>($"tickets/{id}/get-for-client");

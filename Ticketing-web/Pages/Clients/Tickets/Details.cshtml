@@ -1,14 +1,24 @@
-﻿ @page "{id}"
+﻿@page "{id}"
 @using Ticketing_web.EntityModels.Tickets
 @model Ticketing_web.Pages.Clients.Tickets.DetailsModel
+
 @{
     ViewData["Title"] = "جزئیات تیکت";
     Layout = "_Layout";
 }
+@{
+    var canEditTicket = false;
+    if (Model.Ticket is not null)
+    {
+        canEditTicket = Model.Ticket.Status == TicketStatus.Open
+                        && !Model.Ticket.Replies.Any();
+    }
 
-@if(Model.Ticket is not null)
+
+    
+}
+@if (Model.Ticket is not null)
 {
-  
     var statusClass = Model.Ticket.Status switch
     {
         TicketStatus.Open => "status-open",
@@ -26,96 +36,230 @@
         _ => "priority-unknown"
     };
 
- <div class="ticket-details-page">
+    <div class="ticket-details-page">
 
-    <header class="page-header">
-        <h1> @Model.Ticket.Title </h1>
-        <a asp-page="./Index" >بازگشت</a>
-    </header>
-    <main class="ticket-main">
-        
-        <section class="ticket-information">
-            <h2>اطلاعات تیکت</h2>
+        <header class="page-header">
+            <h1>@Model.Ticket.Title</h1>
+            <a asp-page="./Index">بازگشت</a>
+        </header>
 
-            <div class="ticket-information-grid">
-            
-                <div class="ticket-field">
-                <span> عنوان تیکت</span>
-                    <p>@Model.Ticket.Title</p>
-                
+        <main class="ticket-main">
+
+            <!-- اطلاعات تیکت -->
+            <section class="ticket-information">
+
+                <h2>اطلاعات تیکت</h2>
+
+                <div class="ticket-information-grid">
+
+                    <div class="ticket-field">
+                        <span>عنوان تیکت</span>
+                        <p>@Model.Ticket.Title</p>
+                    </div>
+
+                    <div class="ticket-field">
+                        <span>وضعیت تیکت</span>
+                        <p class="@statusClass">@Model.Ticket.Status</p>
+                    </div>
+
+                    <div class="ticket-field">
+                        <span>تاریخ ثبت</span>
+                        <p>@Model.Ticket.CreatedAt.ToString("yyyy/MM/dd HH:mm")</p>
+                    </div>
+
+                    <div class="ticket-field">
+                        <span>توسط</span>
+                        <p>@Model.Ticket.AskedBy</p>
+                    </div>
+
+                    <div class="ticket-field">
+                        <span>اولویت</span>
+                        <p class="@priorityClass">@Model.Ticket.Priority</p>
+                    </div>
+
+                    <div class="ticket-field ticket-content">
+                        <span>متن تیکت</span>
+                        <p>@Model.Ticket.Content</p>
+                    </div>
+
                 </div>
-                
-                <div class="ticket-field">
-                    <span>وضعیت تیکت</span>
-                    <p class="@statusClass">@Model.Ticket.Status</p>
-                
-                </div>
-                
-                <div class="ticket-field">
-                    <span>تاریخ ثبت</span>
-                    <p>@Model.Ticket.CreatedAt.ToString("yyyy/MM/dd HH:mm")</p>
-                
-                </div>
-                
-                <div class="ticket-field">
-                    <span>توسط</span>
-                    <p>@Model.Ticket.AskedBy</p>
-                
-                </div>
-                
-                
-                <div class="ticket-field">
-                    <span>اولویت</span>
-                    <p class="@priorityClass">@Model.Ticket.Priority</p>
-                
-                </div>
-                <div class="ticket-field ticket-content">
-                    <span> متن تیکت</span>
-                    <p>@Model.Ticket.Content</p>
-                
-                </div>
-            </div>
-            @if (Model.Ticket.Documents.Any())
-            {
-                
-                <div class="ticket-documents">
-                 <h3>فایل های پیوست</h3>
 
-                      @foreach (var document in Model.Ticket.Documents)
-                      {
-                          var isImage = document.Extension.StartsWith(
-                          "image/",
-                          StringComparison.OrdinalIgnoreCase
-                          );
+                <!-- فایل های پیوست تیکت -->
+                @if (Model.Ticket.Documents.Any())
+                {
+                 
+                    <div class="ticket-documents">
 
-                          <div class="document-item">
+                        <h3>فایل‌های پیوست</h3>
 
-                              @if (isImage)
-                              {
-                                  <img src="https://api-ticketing.rdehghani.ir/api/storages/@document.DocumentId/download"
-                                       alt="تصویر پیوست" />
-                              }
-                              else
-                              {
-                                  <div class="file-placeholder">
-                                      <span>📄</span>
-                                      <p>فایل پیوست</p>
-                                  </div>
-                              }
+                        @foreach (var document in Model.Ticket.Documents)
+                        {
+                            var downloadUrl =
+                            $"https://api-ticketing.rdehghani.ir/api/storages/{document.DocumentId}/download";
 
-                              <a href="https://api-ticketing.rdehghani.ir/api/storages/@document.DocumentId/download"
-                                 target="_blank">
-                                  دانلود فایل
-                              </a>
+                            var isImage = document.Extension.StartsWith(
+                            "image/",
+                            StringComparison.OrdinalIgnoreCase
+                            );
 
-                          </div>
-                      }
-                </div>
-            }
+                            <div class="document-item">
 
-        </section>
-        <section class="conversation">
-            <h2>گفتگوها</h2>
+                                @if (isImage)
+                                {
+                                    <img src="@downloadUrl"
+                                         alt="تصویر پیوست" />
+                                }
+                                else
+                                {
+                                    <div class="file-placeholder">
+                                        <span>📄</span>
+                                        <p>فایل پیوست</p>
+                                    </div>
+                                }
+
+                                <a href="@downloadUrl" target="_blank">
+                                    دانلود فایل
+                                </a>
+                            </div>
+
+                            @if (canEditTicket)
+                            {
+                                <form method="post"
+                                      asp-page-handler="DeleteTicketDocument"
+                                      class="delete-document-form">
+                                    <input type="hidden" name="documentId" value="@document.DocumentId" />
+                                    <input type="hidden" name="id" value="@Model.Id" />
+
+                                    <button type="submit" class="delete-attachment-button" title="حذف فایل">
+                                        ×
+                                    </button>
+                                </form>
+                            }
+
+                        }
+                    </div>
+                }
+                @if (canEditTicket==true)
+                {
+                    <form method="post" 
+                        enctype="multipart/form-data"
+                        asp-page-handler="SendFile"> 
+
+                        <input type="hidden" name="id" value="@Model.Id" />
+                        <div class="file-upload">
+                        
+                            <label>فایل پیوست</label>
+                            <input type="file"
+                                   id="add-ticket-File"
+                                   asp-for="Document"
+                                   class="file-upload-input" />
+                        
+                            <label class="file-upload-box"
+                                   for="add-ticket-File">
+                                <span>📎</span>
+                                <span>برای انتخاب فایل یا تصویر کلیک کنید</span>
+                            </label>
+                        
+                            <div class="file-upload-preview">
+                        
+                                <img class="file-upload-image"
+                                     src=""
+                                     alt="پیش‌نمایش" />
+                        
+                                <span class="file-upload-name"></span>
+                        
+                                <button type="button"
+                                        class="file-upload-remove">
+                                    حذف فایل
+                                </button>
+                                <button type="submit" class="save-button">
+                                    افزودن فایل
+                                </button>
+                            </div>
+                        
+                        </div>
+                    </form>
+                }
+
+            </section>
+
+       
+           <!-- ویرایش تیکت -->
+            @if (canEditTicket)
+           {
+               <section class="ticket-edit-section">
+
+                    <button type="button"
+                            id="show-ticket-edit"
+                            class="edit-ticket-button">
+                        <span>✏️</span>
+                        ویرایش تیکت
+                    </button>
+
+                    <div id="ticket-edit-container" style="display:none;">
+
+                        <form method="post"
+                              asp-page-handler="EditTicket"
+                              enctype="multipart/form-data"
+                              class="ticket-edit-form">
+
+                            <input type="hidden"
+                                   name="id"
+                                   value="@Model.Id" />
+
+                            <h2>ویرایش تیکت</h2>
+
+                            <div class="form-group">
+                                <label for="Title">عنوان تیکت</label>
+                                <input type="text"
+                                       id="Title"
+                                       name="Title"
+                                       value="@Model.Ticket.Title" />
+                            </div>
+
+                            <div class="form-group">
+                                <label for="Content">متن تیکت</label>
+                                <textarea id="Content"
+                                          name="Content"
+                                          rows="5">@Model.Ticket.Content</textarea>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="Priority">اولویت</label>
+                                <select id="Priority" name="Priority">
+                                    @foreach (var priority in Enum.GetValues<Priority>())
+                                    {
+                                        <option value="@priority"
+                                                selected="@(Model.Ticket.Priority == priority)">
+                                            @priority
+                                        </option>
+                                    }
+                                </select>
+                            </div>
+                            <div class="edit-form-actions">
+                                <button type="submit" class="save-button">
+                                    ذخیره تغییرات
+                                </button>
+
+                                <button type="button"
+                                        id="cancel-ticket-edit"
+                                        class="cancel-button">
+                                    انصراف
+                                </button>
+                            </div>
+
+                        </form>
+
+                    </div>
+
+                </section>
+           }
+
+            <!-- گفتگوها -->
+            <section class="conversation">
+
+                <h2>گفتگوها</h2>
+
                 <div class="chat-container">
 
                     @foreach (var reply in Model.Ticket.Replies)
@@ -130,12 +274,16 @@
                                     @reply.Content
                                 </div>
 
-                                @if (reply.Documents != null && reply.Documents.Any())
+                                <!-- فایل های پیوست پاسخ -->
+                                @if (reply.Documents != null &&
+                               reply.Documents.Any())
                                 {
                                     <div class="reply-document">
+
                                         @foreach (var document in reply.Documents)
                                         {
-                                            var downloadUrl = $"https://api-ticketing.rdehghani.ir/api/storages/{document.DocumentId}/download";
+                                            var downloadUrl =
+                                            $"https://api-ticketing.rdehghani.ir/api/storages/{document.DocumentId}/download";
 
                                             var isImage = document.Extension.StartsWith(
                                             "image/",
@@ -147,9 +295,11 @@
                                                 @if (isImage)
                                                 {
                                                     <a href="@downloadUrl" target="_blank">
+
                                                         <img src="@downloadUrl"
                                                              alt="تصویر پیوست"
                                                              class="reply-document-image" />
+
                                                     </a>
                                                 }
                                                 else
@@ -169,13 +319,16 @@
                                     </div>
                                 }
 
-
                                 <div class="message-footer">
-                                    <span class="message-role">@reply.IssuedBy</span>
+
+                                    <span class="message-role">
+                                        @reply.IssuedBy
+                                    </span>
 
                                     <span class="message-time">
                                         @reply.CreatedAt.ToString("yyyy/MM/dd HH:mm")
                                     </span>
+
                                 </div>
 
                             </div>
@@ -184,94 +337,157 @@
                     }
 
                 </div>
-        </section>
 
+            </section>
+
+            <!-- فرم ثبت پاسخ -->
             @if (Model.Ticket.Status == TicketStatus.Answered)
             {
-                <section class="reply-form" >
-                    <h2> ارسال پاسخ</h2>
-                    <form method="post" enctype="multipart/form-data"
-                        asp-page-handler="Reply">
-                        <div class="form-group">
-                            <label asp-for="ReplyContent" >متن پاسخ</label>
-                            <textarea 
-                                asp-for="ReplyContent"
-                                placeholder="پاسخ خود را بنویسید"
-                                rows="5"></textarea>
-                        </div>
-                        <div class="form-group">
-                            <label for="replyFile" ></label>
-                            <input type="file" id="replyFile" asp-for="Document" />
-                        </div>
-                        
-                        <div id="reply-file-preview" class="file-preview">
-                            <img
-                                id="reply-image-preview" 
-                                src="" 
-                                alt=""
-                                style="display:none"/>
-                            <span id="reply-file-name" ></span>
+                <section class="reply-form">
 
-                            <button type="button" id="remove-reply-file" >
-                                حذف فایل
-                            </button>
+                    <h2>ارسال پاسخ</h2>
+
+                    <form method="post"
+                          enctype="multipart/form-data"
+                          asp-page-handler="Reply">
+
+                        <div class="form-group">
+
+                            <label asp-for="ReplyContent">
+                                متن پاسخ
+                            </label>
+
+                            <textarea asp-for="ReplyContent"
+                                      placeholder="پاسخ خود را بنویسید"
+                                      rows="5"></textarea>
+
                         </div>
 
-                        <button type="submit" >ارسال پاسخ</button>
+                           <div class="file-upload">
+
+                            <label>فایل پیوست</label>
+
+                            <input type="file"
+                                   id="replyFile"
+                                   asp-for="Document"
+                                   class="file-upload-input" />
+
+                            <label for="replyFile"
+                                   class="file-upload-box">
+
+                                <span>📎</span>
+                                <span>برای انتخاب فایل یا تصویر کلیک کنید</span>
+
+                            </label>
+
+                            <div class="file-upload-preview">
+
+                                <img class="file-upload-image"
+                                     src=""
+                                     alt="پیش‌نمایش" />
+
+                                <span class="file-upload-name"></span>
+
+                                <button type="button"
+                                        class="file-upload-remove">
+                                    حذف فایل
+                                </button>
+                                <button type="submit">
+                                    ارسال پاسخ
+                                </button>
+                            </div>
+
+                        </div>
                     </form>
+                        <!-- انتخاب فایل پاسخ -->
+                       
+                        
+
                 </section>
             }
 
-    </main>
-</div>
+        </main>
+
+    </div>
 }
-@section Scripts{
+
+@section Scripts {
+
     <partial name="_ValidationScriptsPartial" />
+
     <script>
-        $(()=>{
-            $("#replyFile").on("change", function () {
+        $(() => {
+
+            // انتخاب فایل و نمایش پیش نمایش
+            $(".file-upload-input").on("change", function () {
+
                 const file = this.files[0];
+
+                const container = $(this).closest(".file-upload");
+
+                const preview = container.find(".file-upload-preview");
+                const image = container.find(".file-upload-image");
+                const fileName = container.find(".file-upload-name");
+
                 if (!file) {
+                    preview.hide();
                     return;
                 }
 
-                $("#reply-file-name").text(file.name);
+                fileName.text(file.name);
+
                 if (file.type.startsWith("image/")) {
 
                     const reader = new FileReader();
 
                     reader.onload = function (e) {
 
-                        $("#reply-image-preview")
-                            .attr("src", e.target.result)
-                            .show();
-                    };
-                    reader.readAsDataURL(file);
-                } else {
+                        image.attr("src", e.target.result).show();
 
-                    $("#reply-image-preview")
-                        .attr("src", "")
-                        .hide();
+                    };
+
+                    reader.readAsDataURL(file);
 
                 }
-                $("#reply-file-preview").show();
+                else {
+
+                    image.attr("src", "").hide();
+
+                }
+
+                preview.css("display", "flex");
 
             });
-            $("#remove-reply-file").on("click", function () {
 
-                $("#replyFile").val("");
 
-                $("#reply-image-preview")
+            // حذف فایل انتخاب شده
+            $(".file-upload-remove").on("click", function () {
+
+                const container = $(this).closest(".file-upload");
+
+                container.find(".file-upload-input").val("");
+
+                container.find(".file-upload-image")
                     .attr("src", "")
                     .hide();
 
-                $("#reply-file-name").text("");
+                container.find(".file-upload-name").text("");
 
-                $("#reply-file-preview").hide();
+                container.find(".file-upload-preview").hide();
 
             });
+            // نمایش فرم ویرایش تیکت
+            $("#show-ticket-edit").on("click", function () {
+                $("#ticket-edit-container").slideDown(250);
+                $(this).hide();
+            });
 
+            // بستن فرم ویرایش
+            $("#cancel-ticket-edit").on("click", function () {
+                $("#ticket-edit-container").slideUp(250);
+                $("#show-ticket-edit").show();
+            });
 
-        })
+        });
     </script>
 }
