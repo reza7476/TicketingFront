@@ -2,6 +2,7 @@
 using System.Net;
 using System.Net.Http.Json;
 using System.Text.Json;
+using System.Threading;
 using Ticketing_web.EntityModels.Commons;
 
 namespace Ticketing_web.Services.Http;
@@ -79,6 +80,20 @@ public class ApiClient
             response, cancellationToken);
     }
 
+
+    public async Task<ApiResultDto<TRequest>> PutAsync<TRequest>(
+        string url,
+        TRequest request,
+        CancellationToken cancellationToken=default)
+    {
+        AddAuthorizationHeader();
+        using var response = await _httpClient.PutAsJsonAsync(
+           url, request, _jsonOptions, cancellationToken);
+
+        return await HandleResponse<TRequest>(
+            response, cancellationToken);
+    }
+
     // PATCH: ویرایش بخشی از اطلاعات
     public async Task<ApiResultDto<TResponse>> PatchAsync<TRequest, TResponse>(
         string url,
@@ -97,6 +112,7 @@ public class ApiClient
         string url,
         CancellationToken cancellationToken = default)
     {
+        AddAuthorizationHeader();
         using var response = await _httpClient.DeleteAsync(
             url, cancellationToken);
 

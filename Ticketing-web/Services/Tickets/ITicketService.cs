@@ -1,5 +1,6 @@
 ﻿using Ticketing_web.Configurations.Interfaces.Interfaces;
 using Ticketing_web.EntityModels.Commons;
+using Ticketing_web.EntityModels.Documents;
 using Ticketing_web.EntityModels.Tickets;
 
 namespace Ticketing_web.Services.Tickets;
@@ -22,4 +23,7 @@ public interface ITicketService : IService
     Task<ApiResultDto<GetTicketDetailsDto?>> GetDetailsForAdminAsync(string id);
     Task<ApiResultDto<GetAgentTicketDetailsDto?>> GetDetailsForAgent(string id);
     Task<ApiResultDto<GetClientTicketDetailsDto?>> GetClientTicketDetails(string id);
+    Task<ApiResultDto<object>> AddFile(string id, DocumentDto? document);
+    Task<ApiResultDto<object>> DeleteDocument(string id, string documentId);
+    Task<ApiResultDto<object>> EditTicket(EditTicketDto dto);
 }

@@ -13,6 +13,11 @@ public class FileService : IFileService
         _apiClient = apiClient;
     }
 
+    public async Task<ApiResultDto<object>> Delete(string documentId)
+    {
+        return await _apiClient.DeleteAsync<object>($"storages/{documentId}");
+    }
+
     public async Task<ApiResultDto<DocumentDto>> Upload(IFormFile document)
     {
         return await _apiClient
