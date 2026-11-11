@@ -13,18 +13,34 @@ public class TicketReplyService : ITicketReplyService
         _apiClient = apiClient;
     }
 
+    public async Task<ApiResultDto<object>> AddFile(string id, DocumentDto document)
+    {
+        var request = new
+        {
+            ReplyId = id,
+            document
+        };
+
+        return await _apiClient.PostAsync<object>("ticket-replies/add-file", request);
+    }
+
     public async Task<ApiResultDto<object>> Approve(string replyId)
     {
         var request = new
         {
-            ReplyId=replyId
+            ReplyId = replyId
         };
         return await _apiClient
-            .PatchAsync<object,object>(
+            .PatchAsync<object, object>(
             url: $"ticket-replies/approve-reply", request);
     }
 
-    public  async Task<ApiResultDto<object>> EditReply(
+    public async Task<ApiResultDto<object>> DeleteDocument(string documentId)
+    {
+        return await _apiClient.DeleteAsync<object>($"ticket-replies/document/{documentId}");
+    }
+
+    public async Task<ApiResultDto<object>> EditReply(
         string replyId,
         string editedContent)
     {
@@ -36,9 +52,9 @@ public class TicketReplyService : ITicketReplyService
     }
 
     public async Task<ApiResultDto<string>> ReplyTicket(
-        string id, 
-        string content, 
-        DocumentDto? document=null)
+        string id,
+        string content,
+        DocumentDto? document = null)
     {
         var request = new
         {
@@ -46,7 +62,7 @@ public class TicketReplyService : ITicketReplyService
             Content = content,
             document
         };
-        return await _apiClient.PostAsync<object,string>(
+        return await _apiClient.PostAsync<object, string>(
              "ticket-replies/reply",
              request);
     }

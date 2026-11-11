@@ -13,9 +13,19 @@
         canEditTicket = Model.Ticket.Status == TicketStatus.Open
                         && !Model.Ticket.Replies.Any();
     }
-
+    var canEditReply = false;
+    if(Model.Ticket is not null)
+    {
+        canEditReply = Model.Ticket.Status == TicketStatus.Open;
+    }
 
     
+    var lastClientReplyId = Model.Ticket?.Replies
+        .Where(r => r.IssuedBy == "Client")
+        .OrderByDescending(r => r.CreatedAt)
+        .Select(r => r.Id)
+        .FirstOrDefault();
+
 }
 @if (Model.Ticket is not null)
 {
@@ -37,7 +47,19 @@
     };
 
     <div class="ticket-details-page">
+        @if (!string.IsNullOrWhiteSpace(Model.Message))
+        {
+            <div class="alert-message alert-success">
+                @Model.Message
+            </div>
+        }
 
+        @if (!string.IsNullOrWhiteSpace(Model.ErrorMessage))
+        {
+            <div class="alert-message alert-error">
+                @Model.ErrorMessage
+            </div>
+        }
         <header class="page-header">
             <h1>@Model.Ticket.Title</h1>
             <a asp-page="./Index">بازگشت</a>
@@ -186,74 +208,74 @@
        
            <!-- ویرایش تیکت -->
             @if (canEditTicket)
-           {
-               <section class="ticket-edit-section">
-
-                    <button type="button"
-                            id="show-ticket-edit"
-                            class="edit-ticket-button">
-                        <span>✏️</span>
-                        ویرایش تیکت
-                    </button>
-
-                    <div id="ticket-edit-container" style="display:none;">
-
-                        <form method="post"
-                              asp-page-handler="EditTicket"
-                              enctype="multipart/form-data"
-                              class="ticket-edit-form">
-
-                            <input type="hidden"
-                                   name="id"
-                                   value="@Model.Id" />
-
-                            <h2>ویرایش تیکت</h2>
-
-                            <div class="form-group">
-                                <label for="Title">عنوان تیکت</label>
-                                <input type="text"
-                                       id="Title"
-                                       name="Title"
-                                       value="@Model.Ticket.Title" />
-                            </div>
-
-                            <div class="form-group">
-                                <label for="Content">متن تیکت</label>
-                                <textarea id="Content"
-                                          name="Content"
-                                          rows="5">@Model.Ticket.Content</textarea>
-                            </div>
-
-                            <div class="form-group">
-                                <label for="Priority">اولویت</label>
-                                <select id="Priority" name="Priority">
-                                    @foreach (var priority in Enum.GetValues<Priority>())
-                                    {
-                                        <option value="@priority"
-                                                selected="@(Model.Ticket.Priority == priority)">
-                                            @priority
-                                        </option>
-                                    }
-                                </select>
-                            </div>
-                            <div class="edit-form-actions">
-                                <button type="submit" class="save-button">
-                                    ذخیره تغییرات
-                                </button>
-
-                                <button type="button"
-                                        id="cancel-ticket-edit"
-                                        class="cancel-button">
-                                    انصراف
-                                </button>
-                            </div>
-
-                        </form>
-
-                    </div>
-
-                </section>
-           }
+             {
+                <section class="ticket-edit-section">
+            
+                     <button type="button"
+                             id="show-ticket-edit"
+                             class="edit-ticket-button">
+                         <span>✏️</span>
+                         ویرایش تیکت
+                     </button>
+            
+                     <div id="ticket-edit-container" style="display:none;">
+            
+                         <form method="post"
+                               asp-page-handler="EditTicket"
+                               enctype="multipart/form-data"
+                               class="ticket-edit-form">
+            
+                             <input type="hidden"
+                                    name="id"
+                                    value="@Model.Id" />
+            
+                             <h2>ویرایش تیکت</h2>
+            
+                             <div class="form-group">
+                                 <label for="Title">عنوان تیکت</label>
+                                 <input type="text"
+                                        id="Title"
+                                        name="Title"
+                                        value="@Model.Ticket.Title" />
+                             </div>
+            
+                             <div class="form-group">
+                                 <label for="Content">متن تیکت</label>
+                                 <textarea id="Content"
+                                           name="Content"
+                                           rows="5">@Model.Ticket.Content</textarea>
+                             </div>
+            
+                             <div class="form-group">
+                                 <label for="Priority">اولویت</label>
+                                 <select id="Priority" name="Priority">
+                                     @foreach (var priority in Enum.GetValues<Priority>())
+                                     {
+                                         <option value="@priority"
+                                                 selected="@(Model.Ticket.Priority == priority)">
+                                             @priority
+                                         </option>
+                                     }
+                                 </select>
+                             </div>
+                             <div class="edit-form-actions">
+                                 <button type="submit" class="save-button">
+                                     ذخیره تغییرات
+                                 </button>
+            
+                                 <button type="button"
+                                         id="cancel-ticket-edit"
+                                         class="cancel-button">
+                                     انصراف
+                                 </button>
+                             </div>
+            
+                         </form>
+            
+                     </div>
+            
+                 </section>
+            }
 
             <!-- گفتگوها -->
             <section class="conversation">
@@ -275,8 +297,7 @@
                                 </div>
 
                                 <!-- فایل های پیوست پاسخ -->
-                                @if (reply.Documents != null &&
-                               reply.Documents.Any())
+                                @if (reply.Documents.Any())
                                 {
                                     <div class="reply-document">
 
@@ -287,8 +308,7 @@
 
                                             var isImage = document.Extension.StartsWith(
                                             "image/",
-                                            StringComparison.OrdinalIgnoreCase
-                                            );
+                                            StringComparison.OrdinalIgnoreCase);
 
                                             <div class="reply-document-item">
 
@@ -308,15 +328,28 @@
                                                         📄 <span>فایل پیوست</span>
                                                     </div>
                                                 }
-
                                                 <a href="@downloadUrl" target="_blank">
                                                     دانلود فایل
                                                 </a>
+                                                @if (canEditReply && reply.Id == lastClientReplyId)
+                                                {
+                                                    <form method="post"
+                                                          asp-page-handler="DeleteTicketReplyDocument"
+                                                          class="delete-document-form">
+                                                        <input type="hidden" name="documentId" value="@document.DocumentId" />
+                                                        <input type="hidden" name="id" value="@Model.Id" />
 
+                                                        <button type="submit" class="delete-attachment-button" title="حذف فایل">
+                                                            ×
+                                                        </button>
+                                                    </form>
+                                                }
                                             </div>
                                         }
 
                                     </div>
+
+                                 
                                 }
 
                                 <div class="message-footer">
@@ -331,9 +364,92 @@
 
                                 </div>
 
-                            </div>
+                                @if (canEditReply && reply.IssuedBy == "Client" && reply.Id == lastClientReplyId)
+                                {
+                                    <div class="reply-edit-section">
 
+                                        <button type="button"
+                                                class="edit-reply-button">
+                                            <span>✏️</span>
+                                            ویرایش پاسخ
+                                        </button>
+
+                                        <div class="reply-edit-container" style="display:none;">
+
+                                            <form method="post" 
+                                                  enctype="multipart/form-data"
+                                                  asp-page-handler="EditReply">
+
+                                                <input type="hidden"
+                                                       name="ReplyId"
+                                                       value="@reply.Id" />
+
+                                                <div class="form-group">
+
+                                                    <label asp-for="ReplyContent">
+                                                        متن پاسخ
+                                                    </label>
+
+                                                    <textarea name="EditedReplyContent"
+                                                              placeholder="متن پاسخ خود را ویرایش کنید"
+                                                              rows="4">@reply.Content</textarea>
+
+                                                </div>
+                                                <div class="file-upload">
+
+                                                    <label>افزودن فایل پیوست</label>
+
+                                                    <input type="file"
+                                                           id="reply-edit-file-@reply.Id"
+                                                           asp-for="Document"
+                                                           class="file-upload-input" />
+
+                                                    <label for="reply-edit-file-@reply.Id"
+                                                           class="file-upload-box">
+
+                                                        <span>📎</span>
+                                                        <span>برای انتخاب فایل یا تصویر کلیک کنید</span>
+
+                                                    </label>
+
+                                                    <div class="file-upload-preview">
+
+                                                        <img class="file-upload-image"
+                                                             src=""
+                                                             alt="پیش‌نمایش" />
+
+                                                        <span class="file-upload-name"></span>
+
+                                                        <button type="button"
+                                                                class="file-upload-remove">
+                                                            حذف فایل
+                                                        </button>
+
+                                                    </div>
+
+                                                </div>
+
+                                                <div class="reply-edit-actions">
+
+                                                    <button type="submit" class="save-button">
+                                                        ذخیره تغییرات
+                                                    </button>
+
+                                                    <button type="button" class="cancel-reply-edit">
+                                                        انصراف
+                                                    </button>
+
+                                                </div>
+
+                                            </form>
+
+                                        </div>
+
+                                    </div>
+                                }
                         </div>
+                        </div>
+
                     }
 
                 </div>
@@ -476,17 +592,36 @@
                 container.find(".file-upload-preview").hide();
 
             });
+            
             // نمایش فرم ویرایش تیکت
             $("#show-ticket-edit").on("click", function () {
                 $("#ticket-edit-container").slideDown(250);
                 $(this).hide();
             });
 
+         
             // بستن فرم ویرایش
             $("#cancel-ticket-edit").on("click", function () {
                 $("#ticket-edit-container").slideUp(250);
                 $("#show-ticket-edit").show();
             });
+
+
+
+
+
+            $(".edit-reply-button").on("click",function(){
+                const section = $(this).closest(".reply-edit-section");
+                section.find(".reply-edit-container").slideDown(250);
+                $(this).hide();
+            })
+
+
+            $(".cancel-reply-edit").on("click",function(){
+                const section = $(this).closest(".reply-edit-section");
+                section.find(".reply-edit-container").slideUp(250);
+                section.find(".edit-reply-button").show();
+            })
 
         });
     </script>

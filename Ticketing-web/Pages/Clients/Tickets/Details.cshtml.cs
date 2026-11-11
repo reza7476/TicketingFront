@@ -143,21 +143,23 @@ public class DetailsModel : PageModel
         if (Ticket is null)
             return NotFound();
 
-        if (Ticket.Status != TicketStatus.Answered)
+        DocumentDto? document = null;
+        if (Document != null && Document.Length > 0)
         {
-            ErrorMessage = "در وضعیت فعلی امکان ویرایش پاسخ وجود ندارد.";
-            return Page();
+            document = await UploadFile(Document);
+            if (document == null)
+            {
+                await LoadTicketAsync();
+                return Page();
+            }
+            var addFile = await _replyService.AddFile(ReplyId, document);
+
+            if (addFile is null || !addFile.IsSuccess)
+            {
+                ErrorMessage = addFile?.Error ?? "ثبت فایل ناموفق بود.";
+                return Page();
+            }
         }
-
-        var reply = Ticket.Replies.FirstOrDefault(x => x.Id == ReplyId);
-
-        if (reply is null)
-        {
-            ErrorMessage = "پاسخ موردنظر پیدا نشد.";
-            return Page();
-        }
-
-
 
         var result = await _replyService.EditReply(
 
@@ -174,7 +176,45 @@ public class DetailsModel : PageModel
 
         return RedirectToPage("./Details", new { id = Id });
     }
+    public async Task<IActionResult> OnPostDeleteTicketReplyDocument(
+        string id,string documentId)
+    {
 
+        if (string.IsNullOrWhiteSpace(id) ||
+         string.IsNullOrWhiteSpace(documentId))
+        {
+            return NotFound();
+        }
+
+        Id = id;
+
+        await LoadTicketAsync();
+
+        if (Ticket is null)
+            return NotFound();
+        var removeResult = await _fileService.Delete(documentId);
+        if (!removeResult.IsSuccess)
+        {
+            ErrorMessage = removeResult?.Error ?? "حذف فایل ناموفق بود.";
+            await LoadTicketAsync();
+            return Page();
+        }
+
+        var result = await _replyService.DeleteDocument(documentId);
+
+        if (result is null || !result.IsSuccess)
+        {
+            ErrorMessage = result?.Error ?? "حذف فایل ناموفق بود.";
+
+            await LoadTicketAsync();
+
+            return Page();
+        }
+
+        TempData["Message"] = "فایل پیوست پاسخ با موفقیت حذف شد.";
+
+        return RedirectToPage("./Details", new { id = Id });
+    }
     public async Task<IActionResult> OnPostDeleteTicketDocument(
         string documentId,
         string id)
@@ -204,7 +244,7 @@ public class DetailsModel : PageModel
     public async Task<IActionResult> OnPostEditTicket(
         string content,
         string title,
-        Priority priority,string id)
+        Priority priority, string id)
     {
 
         Id = id;
@@ -212,9 +252,9 @@ public class DetailsModel : PageModel
             return NotFound();
 
         Id = id;
-        TicketContent=content;
+        TicketContent = content;
         Title = title;
-        Priority= priority; 
+        Priority = priority;
 
 
         if (!IsValidContent(TicketContent))
@@ -231,13 +271,13 @@ public class DetailsModel : PageModel
         }
         var result = await _ticketService.EditTicket(new EditTicketDto()
         {
-           Priority = priority,
-           Title = Title,
-           Content = TicketContent,
-           TicketId=Id
+            Priority = priority,
+            Title = Title,
+            Content = TicketContent,
+            TicketId = Id
         });
 
-        if(!result.IsSuccess)
+        if (!result.IsSuccess)
         {
             ErrorMessage ??= result?.Error ?? "دریافت اطلاعات تیکت ناموفق بود.";
             await LoadTicketAsync();
