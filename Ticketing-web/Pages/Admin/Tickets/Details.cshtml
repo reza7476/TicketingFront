@@ -1,33 +1,37 @@
 ﻿@page "{id}"
 @using Ticketing_web.EntityModels.Tickets
 @model Ticketing_web.Pages.Admin.Tickets.DetailsModel
+
 @{
     ViewData["Title"] = "جزئیات تیکت";
+    Layout = "_Layout";
 }
+<link href="~/css/ticket-details.css" rel="stylesheet" />
+<div class="ticket-details-page" dir="rtl">
 
-<div class="ticket-page" dir="rtl">
-
+    <!-- Header -->
     <div class="page-header">
         <div>
-            <h1>جزئیات تیکت</h1>
-            <p>مشاهده اطلاعات، تاریخچه ارجاعات و پاسخ‌ها</p>
+            <h2>جزئیات تیکت</h2>
+            <p>مشاهده اطلاعات، گفتگوها و تاریخچه ارجاعات</p>
         </div>
 
-        <a asp-page="/Admin/Tickets/Index" class="back-button">
+        <a asp-page="/Admin/Tickets/Index" class="details-button secondary-button">
             بازگشت به فهرست
         </a>
     </div>
 
+    <!-- پیام‌ها -->
     @if (!string.IsNullOrWhiteSpace(Model.Message))
     {
-        <div class="message success-message">
+        <div class="ticket-alert success-alert">
             @Model.Message
         </div>
     }
 
     @if (!string.IsNullOrWhiteSpace(Model.ErrorMessage))
     {
-        <div class="message error-message">
+        <div class="ticket-alert error-alert">
             @Model.ErrorMessage
         </div>
     }
@@ -43,370 +47,633 @@
         var ticket = Model.Ticket;
         var isClosed = ticket.Status == TicketStatus.Closed;
 
-        <!-- اطلاعات اصلی تیکت -->
-        <section class="panel ticket-information">
+        <div class="ticket-main">
 
-            <div class="panel-header">
-                <h2>@ticket.Title</h2>
+            <!-- 1. اطلاعات اصلی تیکت -->
+            <section class="ticket-information">
 
-                <span class="ticket-number">
-                    شماره @ticket.Number
-                </span>
-            </div>
-
-            <div class="ticket-meta">
-
-                <div class="meta-item">
-                    <span>ثبت‌کننده</span>
-                    <strong>@ticket.AskedBy</strong>
+                <div class="ticket-title-row">
+                    <div>
+                        <h3>@ticket.Title</h3>
+                        <span class="ticket-number">
+                            شماره تیکت: @ticket.Number
+                        </span>
+                    </div>
                 </div>
 
-                <div class="meta-item">
-                    <span>سازمان مالک</span>
-                    <strong>@ticket.OwnerOrgan</strong>
+                <div class="ticket-information-grid">
+
+                    <div class="ticket-field">
+                        <span>ثبت‌کننده</span>
+                        <strong>@ticket.AskedBy</strong>
+                    </div>
+
+                    <div class="ticket-field">
+                        <span>سازمان مالک</span>
+                        <strong>@ticket.OwnerOrgan</strong>
+                    </div>
+
+                    <div class="ticket-field">
+                        <span>تاریخ ثبت</span>
+                        <strong>
+                            @ticket.CreatedAt.ToString("yyyy/MM/dd HH:mm")
+                        </strong>
+                    </div>
+
+                    <div class="ticket-field">
+                        <span>اولویت</span>
+                        <strong class="priority-@ticket.Priority.ToString().ToLowerInvariant()">
+                            @ticket.Priority
+                        </strong>
+                    </div>
+
+                    <div class="ticket-field">
+                        <span>وضعیت</span>
+                        <strong class="status-@ticket.Status.ToString().ToLowerInvariant()">
+                            @ticket.Status
+                        </strong>
+                    </div>
+
                 </div>
 
-                <div class="meta-item">
-                    <span>تاریخ ثبت</span>
-                    <strong>@ticket.CreatedAt.ToString("yyyy/MM/dd HH:mm")</strong>
+            </section>
+
+            <!-- 2. متن تیکت -->
+            <section class="ticket-information">
+
+                <div class="section-heading">
+                    <h3>متن تیکت</h3>
                 </div>
 
-                <div class="meta-item">
-                    <span>اولویت</span>
-                    <strong class="priority @ticket.Priority.ToString().ToLowerInvariant()">
-                        @ticket.Priority
-                    </strong>
+                <div class="ticket-content">
+                    <p>@ticket.Content</p>
                 </div>
 
-                <div class="meta-item">
-                    <span>وضعیت</span>
-                    <strong class="status @ticket.Status.ToString().ToLowerInvariant()">
-                        @ticket.Status
-                    </strong>
+            </section>
+
+            <!-- 3. فایل‌های پیوست تیکت -->
+            @if (ticket.Documents != null && ticket.Documents.Count > 0)
+            {
+                <section class="ticket-information">
+
+                    <div class="section-heading">
+                        <h3>فایل‌های پیوست تیکت</h3>
+
+                        <span class="section-count">
+                            @ticket.Documents.Count فایل
+                        </span>
+                    </div>
+
+                    <div class="document-list">
+
+                        @foreach (var document in ticket.Documents)
+                        {
+                            var downloadUrl =
+                            $"https://api-ticketing.rdehghani.ir/api/storages/{document.DocumentId}/download";
+
+                            var isImage = document.Extension != null &&
+                            document.Extension.StartsWith(
+                            "image/",
+                            StringComparison.OrdinalIgnoreCase);
+
+                            <div class="document-item">
+
+                                @if (isImage)
+                                {
+                                    <a href="@downloadUrl"
+                                       target="_blank"
+                                       class="document-image-link">
+
+                                        <img src="@downloadUrl"
+                                             alt="تصویر پیوست" />
+
+                                    </a>
+                                }
+                                else
+                                {
+                                    <div class="document-file-icon">
+                                        <span>📎</span>
+                                    </div>
+                                }
+
+                                <a href="@downloadUrl"
+                                   target="_blank"
+                                   class="document-download">
+                                    دانلود فایل
+                                </a>
+                               
+                            </div>
+                        }
+
+                    </div>
+
+                </section>
+            }
+
+            <!-- 4. ارجاع تیکت -->
+            <section class="ticket-information">
+
+                <div class="section-heading">
+                    <h3>ارجاع تیکت</h3>
                 </div>
 
-            </div>
-
-            <div class="ticket-content">
-                <h3>متن تیکت</h3>
-                <p>@ticket.Content</p>
-            </div>
-
-            <!-- ارجاع تیکت -->
-            <div class="ticket-actions">
                 @if (!isClosed)
                 {
-                    <button type="button"
-                            class="btn btn-primary"
-                            onclick="showAssignForm()">
-                        ارجاع تیکت
-                    </button>
+                    <div class="ticket-admin-actions">
+
+                        <button type="button"
+                                class="details-button primary-button"
+                                onclick="showAssignForm()">
+                            ارجاع تیکت
+                        </button>
+
+                    </div>
+
+                    <form method="post"
+                          asp-page-handler="Assign"
+                          asp-route-id="@Model.Id"
+                          id="assignForm"
+                          class="assign-form hidden">
+
+                        <h4>انتخاب کارشناس برای ارجاع</h4>
+
+                        @if (Model.Agents.Count == 0)
+                        {
+                            <p class="empty-state">
+                                هیچ کارشناس فعالی برای ارجاع پیدا نشد.
+                            </p>
+                        }
+                        else
+                        {
+                            <div class="agent-list">
+
+                                @foreach (var agent in Model.Agents)
+                                {
+                                    <label class="agent-option">
+
+                                        <input type="radio"
+                                               name="AssignedUserId"
+                                               value="@agent.Id"
+                                               required />
+
+                                        <span class="agent-card">
+
+                                            <span class="agent-avatar">
+                                                @agent.FirstName.FirstOrDefault()
+                                            </span>
+
+                                            <span class="agent-info">
+                                                <strong>@agent.FullName</strong>
+                                                <small>کارشناس پشتیبانی</small>
+                                            </span>
+
+                                            <span class="agent-check">✓</span>
+
+                                        </span>
+
+                                    </label>
+                                }
+
+                            </div>
+
+                            <div class="form-actions">
+
+                                <button type="submit"
+                                        class="details-button primary-button">
+                                    تأیید و ارجاع تیکت
+                                </button>
+
+                                <button type="button"
+                                        class="details-button secondary-button"
+                                        onclick="hideAssignForm()">
+                                    انصراف
+                                </button>
+
+                            </div>
+                        }
+
+                    </form>
                 }
                 else
                 {
-                    <button type="button"
-                            class="btn btn-disabled"
-                            disabled>
-                        تیکت بسته شده است
-                    </button>
+                    <span class="closed-ticket-label">
+                        این تیکت بسته شده است و امکان ارجاع ندارد.
+                    </span>
                 }
-            </div>
 
-            @if (!isClosed)
-            {
-                <form method="post"
-                      asp-page-handler="Assign"
-                      asp-route-id="@Model.Id"
-                      id="assignForm"
-                      class="assign-form hidden">
+            </section>
 
-                    <h3>انتخاب کارشناس برای ارجاع</h3>
+            <!-- 5. تاریخچه ارجاعات -->
+            <section class="ticket-information">
 
-                    @if (Model.Agents.Count == 0)
-                    {
-                        <p class="empty-state">
-                            هیچ کارشناس فعالی برای ارجاع پیدا نشد.
-                        </p>
-                    }
-                    else
-                    {
-                        <div class="agent-list">
-                            @foreach (var agent in Model.Agents)
-                            {
-                                <label class="agent-option">
-                                    <input type="radio"
-                                           name="AssignedUserId"
-                                           value="@agent.Id"
-                                           required />
+                <div class="section-heading">
+                    <h3>تاریخچه ارجاعات</h3>
 
-                                    <span class="agent-card">
-                                        <span class="agent-avatar">
-                                            @agent.Name.FirstOrDefault()
-                                        </span>
-
-                                        <span class="agent-info">
-                                            <strong>@agent.FullName</strong>
-                                            <small>کارشناس پشتیبانی</small>
-                                        </span>
-
-                                        <span class="agent-check">✓</span>
-                                    </span>
-                                </label>
-                            }
-                        </div>
-
-                        <div class="form-actions">
-                            <button type="submit" class="btn btn-primary">
-                                تأیید و ارجاع تیکت
-                            </button>
-
-                            <button type="button"
-                                    class="btn btn-secondary"
-                                    onclick="hideAssignForm()">
-                                انصراف
-                            </button>
-                        </div>
-                    }
-
-                </form>
-            }
-
-        </section>
-
-        <!-- تاریخچه ارجاعات -->
-        <section class="panel">
-
-            <div class="panel-header">
-                <h2>تاریخچه ارجاعات</h2>
-
-                <span class="count">
-                    @ticket.AssignmentHistory.Count مورد
-                </span>
-            </div>
-
-            @if (ticket.AssignmentHistory.Count == 0)
-            {
-                <div class="empty-state">
-                    هنوز ارجاعی برای این تیکت ثبت نشده است.
+                    <span class="section-count">
+                        @ticket.AssignmentHistory.Count مورد
+                    </span>
                 </div>
-            }
-            else
-            {
-                <div class="assignment-list">
 
-                    @foreach (var assignment in ticket.AssignmentHistory
-                        .OrderByDescending(x => x.CreatedAt))
-                    {
-                        <div class="assignment-item">
+                @if (ticket.AssignmentHistory.Count == 0)
+                {
+                    <div class="empty-state">
+                        هنوز ارجاعی برای این تیکت ثبت نشده است.
+                    </div>
+                }
+                else
+                {
+                    <div class="assignment-list">
 
-                            <div class="assignment-icon">↪</div>
+                        @foreach (var assignment in ticket.AssignmentHistory
+                       .OrderByDescending(x => x.CreatedAt))
+                        {
+                            <div class="assignment-item">
 
-                            <div class="assignment-details">
-                                <strong>@assignment.AssignedUser</strong>
-                                <span>مسئول دریافت تیکت</span>
+                                <div class="assignment-icon">↪</div>
+
+                                <div class="assignment-details">
+                                    <strong>@assignment.AssignedUser</strong>
+                                    <span>مسئول دریافت تیکت</span>
+                                </div>
+
+                                <time>
+                                    @assignment.CreatedAt.ToString("yyyy/MM/dd HH:mm")
+                                </time>
+
                             </div>
+                        }
 
-                            <time>
-                                @assignment.CreatedAt.ToString("yyyy/MM/dd HH:mm")
-                            </time>
+                    </div>
+                }
 
-                        </div>
-                    }
+            </section>
 
+            <!-- 6. گفتگوها -->
+            <section class="ticket-information conversation-section">
+
+                <div class="section-heading">
+                    <h3>گفتگوها</h3>
+
+                    <span class="section-count">
+                        @ticket.Replies.Count پاسخ
+                    </span>
                 </div>
-            }
 
-        </section>
+                @if (ticket.Replies.Count == 0)
+                {
+                    <div class="empty-state">
+                        هنوز پاسخی برای این تیکت ثبت نشده است.
+                    </div>
+                }
+                else
+                {
+                    <div class="chat-container">
 
-        <!-- پاسخ‌های تیکت -->
-        <section class="panel">
-
-            <div class="panel-header">
-                <h2>پاسخ‌های تیکت</h2>
-
-                <span class="count">
-                    @ticket.Replies.Count پاسخ
-                </span>
-            </div>
-
-            @if (ticket.Replies.Count == 0)
-            {
-                <div class="empty-state">
-                    هنوز پاسخی برای این تیکت ثبت نشده است.
-                </div>
-            }
-            else
-            {
-                <div class="reply-list">
-
-                    @foreach (var reply in ticket.Replies.OrderBy(x => x.RepliedAt))
-                    {
-                        var isClientReply = string.Equals(
+                        @foreach (var reply in ticket.Replies.OrderBy(x => x.RepliedAt))
+                        {
+                            var isClientReply = string.Equals(
                             reply.IssuedBy,
                             "Client",
                             StringComparison.OrdinalIgnoreCase);
 
-                        <article class="reply-card">
+                            var canManageReply =
+                            !isClientReply && !reply.ApprovedByAdmin;
 
-                            <div class="reply-header">
+                            <article class="message-row @(isClientReply ? "client-message" : "agent-message")">
 
-                                <div>
-                                    <h3>@reply.RepliedBy</h3>
+                                <div class="message-bubble">
 
-                                    <span class="reply-date">
-                                        @reply.RepliedAt.ToString("yyyy/MM/dd HH:mm")
-                                    </span>
-                                </div>
+                                    <!-- سربرگ پیام -->
+                                    <div class="message-header">
 
-                                <div class="reply-badges">
+                                        <div class="message-sender">
+                                            <strong>@reply.RepliedBy</strong>
 
-                                    <span class="issued-by">
-                                        @reply.IssuedBy
-                                    </span>
+                                            <span class="message-role">
+                                                @(isClientReply ? "کاربر" : "کارشناس")
+                                            </span>
+                                        </div>
 
-                                    @if (isClientReply)
+                                        <div class="reply-badges">
+
+                                            @if (isClientReply)
+                                            {
+                                                <span class="approval-badge client-badge">
+                                                    پاسخ کاربر
+                                                </span>
+                                            }
+                                            else if (reply.ApprovedByAdmin)
+                                            {
+                                                <span class="approval-badge approved-badge">
+                                                    تأیید شده
+                                                </span>
+                                            }
+                                            else
+                                            {
+                                                <span class="approval-badge pending-badge">
+                                                    در انتظار تأیید
+                                                </span>
+                                            }
+
+                                        </div>
+
+                                    </div>
+
+                                    <!-- متن پاسخ -->
+                                    <div class="message-text">
+                                        @reply.Content
+                                    </div>
+
+                                    <!-- فایل‌های پیوست پاسخ -->
+                                    @if (reply.Documents != null && reply.Documents.Count > 0)
                                     {
-                                        <span class="approval pending">
-                                            پاسخ ثبت‌شده توسط کاربر
-                                        </span>
+                                        <div class="reply-documents">
+
+                                            @foreach (var document in reply.Documents)
+                                            {
+                                                var downloadUrl =
+                                                $"https://api-ticketing.rdehghani.ir/api/storages/{document.DocumentId}/download";
+
+                                                var isImage = document.Extension != null &&
+                                                document.Extension.StartsWith(
+                                                "image/",
+                                                StringComparison.OrdinalIgnoreCase);
+
+                                                <div class="reply-document-item">
+
+                                                    @if (isImage)
+                                                    {
+                                                        <a href="@downloadUrl"
+                                                           target="_blank"
+                                                           class="reply-document-image">
+
+                                                            <img src="@downloadUrl"
+                                                                 alt="تصویر پیوست پاسخ" />
+
+                                                        </a>
+                                                    }
+                                                    else
+                                                    {
+                                                        <div class="reply-file-placeholder">
+                                                            <span>📎</span>
+                                                            <span>فایل پیوست</span>
+                                                        </div>
+                                                    }
+
+                                                    <a href="@downloadUrl"
+                                                       target="_blank"
+                                                       class="document-download">
+                                                        دانلود فایل
+                                                    </a>
+                                                    @if (canManageReply)
+                                                    {
+                                                        //تازمانی که  پاسخ تایید نشده میتواند فایل را حذف کند
+                                                        <form method="post"
+                                                              asp-page-handler="DeleteTicketReplyDocument"
+                                                              asp-route-TicketId="@Model.Id"
+                                                              asp-route-replyId="@reply.Id"
+                                                              asp-route-documentId="@document.DocumentId"
+                                                              class="delete-document-form">
+                                                            <button type="submit" class="delete-attachment-button" title="حذف فایل">
+                                                                ×
+                                                            </button>
+                                                        </form>
+                                                    }
+                                                </div>
+                                            }
+
+                                        </div>
                                     }
-                                    else if (reply.ApprovedByAdmin)
-                                    {
-                                        <span class="approval approved">
-                                            تأیید شده توسط ادمین
+
+                                    <!-- تاریخ پاسخ -->
+                                    <div class="message-footer">
+
+                                        <span class="message-time">
+                                            @reply.RepliedAt.ToString("yyyy/MM/dd HH:mm")
                                         </span>
+
+                                    </div>
+
+                                    <!-- عملیات پاسخ Agent -->
+                                    @if (canManageReply)
+                                    {
+                                        <div class="reply-admin-actions">
+
+                                            <button type="button"
+                                                    class="details-button secondary-button"
+                                                    onclick="showEditForm('@reply.Id')">
+                                                ویرایش پاسخ
+                                            </button>
+
+                                            <form method="post"
+                                                  asp-page-handler="Approve"
+                                                  asp-route-id="@Model.Id"
+                                                  asp-route-replyId="@reply.Id"
+                                                  class="inline-form"
+                                                  onsubmit="return confirm('آیا از تأیید این پاسخ مطمئن هستید؟');">
+
+                                                <input type="hidden"
+                                                       name="replyId"
+                                                       value="@reply.Id" />
+
+                                                <button type="submit"
+                                                        class="details-button success-button">
+                                                    تأیید پاسخ
+                                                </button>
+
+                                            </form>
+
+                                        </div>
+
+                                        <!-- فرم ویرایش پاسخ -->
+                                        <form method="post"
+                                              asp-page-handler="EditReply"
+                                              asp-route-id="@Model.Id"
+                                              asp-route-replyId="@reply.Id"
+                                              id="editForm-@reply.Id"
+                                              class="reply-edit-form hidden"
+                                              enctype="multipart/form-data">
+
+                                            <input type="hidden"
+                                                   name="ReplyId"
+                                                   value="@reply.Id" />
+
+                                            <div class="form-group">
+
+                                                <label for="content-@reply.Id">
+                                                    متن پاسخ جدید
+                                                </label>
+
+                                                <textarea id="content-@reply.Id"
+                                                          name="EditedContent"
+                                                          rows="4"
+                                                          required
+                                                          minlength="2"
+                                                          maxlength="5000">@reply.Content</textarea>
+
+                                            </div>
+
+                                            <!-- فایل‌های فعلی -->
+                                            @if (reply.Documents != null && reply.Documents.Count > 0)
+                                            {
+                                                <div class="edit-reply-documents">
+
+                                                    <label>فایل‌های پیوست فعلی</label>
+
+                                                    <div class="edit-document-list">
+
+                                                        @foreach (var document in reply.Documents)
+                                                        {
+                                                            var downloadUrl =
+                                                            $"https://api-ticketing.rdehghani.ir/api/storages/{document.DocumentId}/download";
+
+                                                            var isImage = document.Extension != null &&
+                                                            document.Extension.StartsWith(
+                                                            "image/",
+                                                            StringComparison.OrdinalIgnoreCase);
+
+                                                            <div class="edit-document-item"
+                                                                 id="existing-document-@document.DocumentId">
+
+                                                                @if (isImage)
+                                                                {
+                                                                    <a href="@downloadUrl"
+                                                                       target="_blank"
+                                                                       class="edit-document-preview">
+
+                                                                        <img src="@downloadUrl"
+                                                                             alt="فایل پیوست" />
+
+                                                                    </a>
+                                                                }
+                                                                else
+                                                                {
+                                                                    <div class="edit-document-file-icon">
+                                                                        📎
+                                                                    </div>
+                                                                }
+
+                                                                <a href="@downloadUrl"
+                                                                   target="_blank"
+                                                                   class="document-download">
+                                                                    دانلود
+                                                                </a>
+
+                                                                <input type="hidden"
+                                                                       name="DeletedDocumentIds"
+                                                                       value=""
+                                                                       disabled
+                                                                       id="delete-document-input-@document.DocumentId" />
+
+                                                                <button type="button"
+                                                                        class="remove-document-button"
+                                                                        title="حذف فایل"
+                                                                        onclick="toggleExistingDocumentDelete('@document.DocumentId', this)">
+                                                                    ×
+                                                                </button>
+
+                                                            </div>
+                                                        }
+
+                                                    </div>
+
+                                                </div>
+                                            }
+
+
+
+                                            <div class="file-upload">
+
+                                                <label>افزودن فایل پیوست</label>
+
+                                                <input type="file"
+                                                       id="reply-edit-file-@reply.Id"
+                                                      asp-for="Document"
+                                                       accept="image/*,.pdf,.doc,.docx,.xls,.xlsx,.zip,.rar"
+                                                       class="file-upload-input" />
+
+                                                <label for="reply-edit-file-@reply.Id"
+                                                       class="file-upload-box">
+
+                                                    <span>📎</span>
+                                                    <span>برای انتخاب فایل یا تصویر کلیک کنید</span>
+
+                                                </label>
+
+                                                <div class="file-upload-preview">
+
+                                                    <img class="file-upload-image"
+                                                         src=""
+                                                         alt="پیش‌نمایش" />
+
+                                                    <span class="file-upload-name"></span>
+
+                                                    <button type="button"
+                                                            class="file-upload-remove">
+                                                        حذف فایل
+                                                    </button>
+
+                                                </div>
+
+                                            </div>
+
+
+                                        
+                                            <div class="form-actions">
+
+                                                <button type="submit"
+                                                        class="details-button primary-button">
+                                                    ذخیره تغییرات
+                                                </button>
+
+                                                <button type="button"
+                                                        class="details-button secondary-button"
+                                                        onclick="hideEditForm('@reply.Id')">
+                                                    انصراف
+                                                </button>
+
+                                            </div>
+
+                                        </form>
+
+
+
+
+                                    }
+                                    else if (isClientReply)
+                                    {
+                                        <div class="reply-readonly-label">
+                                            پاسخ ثبت‌شده توسط کاربر؛ ویرایش و تأیید آن توسط ادمین غیرفعال است.
+                                        </div>
                                     }
                                     else
                                     {
-                                        <span class="approval pending">
-                                            در انتظار تأیید
-                                        </span>
+                                        <div class="reply-readonly-label">
+                                            این پاسخ قبلاً تأیید شده است.
+                                        </div>
                                     }
 
                                 </div>
 
-                            </div>
+                            </article>
+                        }
 
-                            <div class="reply-content">
-                                @reply.Content
-                            </div>
+                    </div>
+                }
 
-                            <!-- عملیات ادمین روی پاسخ -->
-                            <div class="reply-actions">
+            </section>
 
-                                @if (isClientReply)
-                                {
-                                    <span class="approval pending">
-                                        پاسخ کاربر؛ تأیید و ویرایش ادمین غیرفعال است
-                                    </span>
-                                }
-                                else if (!reply.ApprovedByAdmin)
-                                {
-                                    <button type="button"
-                                            class="btn btn-secondary"
-                                            onclick="showEditForm('@reply.Id')">
-                                        ویرایش پاسخ
-                                    </button>
-
-                                    <form method="post"
-                                          asp-page-handler="Approve"
-                                          asp-route-id="@Model.Id"
-                                          asp-route-replyId="@reply.Id"
-                                          class="inline-form"
-                                          onsubmit="return confirm('آیا از تأیید این پاسخ مطمئن هستید؟');">
-
-                                        <input type="hidden"
-                                               name="replyId"
-                                               value="@reply.Id" />
-
-                                        <button type="submit"
-                                                class="btn btn-success">
-                                            تأیید پاسخ
-                                        </button>
-
-                                    </form>
-                                }
-                                else
-                                {
-                                    <button type="button"
-                                            class="btn btn-disabled"
-                                            disabled>
-                                        ویرایش غیرفعال
-                                    </button>
-
-                                    <button type="button"
-                                            class="btn btn-disabled"
-                                            disabled>
-                                        پاسخ تأیید شده
-                                    </button>
-                                }
-
-                            </div>
-
-                            <!-- فرم ویرایش؛ فقط برای پاسخ تأییدنشده غیر Client -->
-                            @if (!isClientReply && !reply.ApprovedByAdmin)
-                            {
-                                <form method="post"
-                                      asp-page-handler="EditReply"
-                                      asp-route-id="@Model.Id"
-                                      asp-route-replyId="@reply.Id"
-                                      id="editForm-@reply.Id"
-                                      class="edit-form hidden">
-
-                                    <input type="hidden"
-                                           name="ReplyId"
-                                           value="@reply.Id" />
-
-                                    <div class="form-group">
-                                        <label for="content-@reply.Id">
-                                            متن پاسخ جدید
-                                        </label>
-
-                                        <textarea id="content-@reply.Id"
-                                                  name="EditedContent"
-                                                  class="form-control"
-                                                  rows="4"
-                                                  required
-                                                  minlength="2"
-                                                  maxlength="5000">@reply.Content</textarea>
-                                    </div>
-
-                                    <div class="form-actions">
-
-                                        <button type="submit"
-                                                class="btn btn-primary">
-                                            ذخیره تغییرات
-                                        </button>
-
-                                        <button type="button"
-                                                class="btn btn-secondary"
-                                                onclick="hideEditForm('@reply.Id')">
-                                            انصراف
-                                        </button>
-
-                                    </div>
-
-                                </form>
-                            }
-
-                        </article>
-                    }
-
-                </div>
-            }
-
-        </section>
+        </div>
     }
+
 </div>
 
-<script src="~/js/ticket-details.js"
-        asp-append-version="true"></script>
-
 @section Scripts {
+
     <partial name="_ValidationScriptsPartial" />
 
     <script>
-        window.showAssignForm = function () {
+        function showAssignForm() {
             const form = document.getElementById("assignForm");
 
             if (form) {
@@ -417,17 +684,13 @@
                     block: "center"
                 });
             }
-        };
+        }
 
-        window.hideAssignForm = function () {
-            const form = document.getElementById("assignForm");
+        function hideAssignForm() {
+            document.getElementById("assignForm")?.classList.add("hidden");
+        }
 
-            if (form) {
-                form.classList.add("hidden");
-            }
-        };
-
-        window.showEditForm = function (replyId) {
+        function showEditForm(replyId) {
             const form = document.getElementById("editForm-" + replyId);
 
             if (form) {
@@ -438,14 +701,173 @@
                     block: "center"
                 });
             }
-        };
+        }
 
-        window.hideEditForm = function (replyId) {
-            const form = document.getElementById("editForm-" + replyId);
+        function hideEditForm(replyId) {
+            document.getElementById("editForm-" + replyId)?.classList.add("hidden");
+        }
 
-            if (form) {
-                form.classList.add("hidden");
+        function toggleExistingDocumentDelete(documentId, button) {
+
+            const input = document.getElementById(
+                "delete-document-input-" + documentId
+            );
+
+            const documentItem = document.getElementById(
+                "existing-document-" + documentId
+            );
+
+            if (!input || !documentItem)
+                return;
+
+            if (input.disabled) {
+
+                input.disabled = false;
+                input.value = documentId;
+
+                documentItem.classList.add("document-marked-delete");
+
+                button.innerText = "↶";
+                button.title = "لغو حذف";
+
+            } else {
+
+                input.disabled = true;
+                input.value = "";
+
+                documentItem.classList.remove("document-marked-delete");
+
+                button.innerText = "×";
+                button.title = "حذف فایل";
             }
-        };
+        }
+
+
+        function previewReplyFiles(replyId, input) {
+
+            const previewContainer = document.getElementById(
+                "new-files-preview-" + replyId
+            );
+
+            if (!previewContainer)
+                return;
+
+            previewContainer.innerHTML = "";
+
+            Array.from(input.files).forEach((file, index) => {
+
+                const item = document.createElement("div");
+                item.className = "edit-document-item";
+
+                if (file.type.startsWith("image/")) {
+
+                    const image = document.createElement("img");
+                    image.className = "edit-document-image";
+                    image.src = URL.createObjectURL(file);
+
+                    item.appendChild(image);
+
+                } else {
+
+                    const icon = document.createElement("div");
+                    icon.className = "edit-document-file-icon";
+                    icon.innerText = "📎";
+
+                    item.appendChild(icon);
+                }
+
+                const name = document.createElement("span");
+                name.className = "edit-document-name";
+                name.innerText = file.name;
+
+                item.appendChild(name);
+
+                const removeButton = document.createElement("button");
+                removeButton.type = "button";
+                removeButton.className = "remove-document-button";
+                removeButton.innerText = "×";
+                removeButton.title = "حذف فایل";
+
+                removeButton.onclick = function () {
+
+                    const dataTransfer = new DataTransfer();
+
+                    Array.from(input.files).forEach((currentFile, fileIndex) => {
+
+                        if (fileIndex !== index) {
+                            dataTransfer.items.add(currentFile);
+                        }
+
+                    });
+
+                    input.files = dataTransfer.files;
+
+                    previewReplyFiles(replyId, input);
+                };
+
+                item.appendChild(removeButton);
+
+                previewContainer.appendChild(item);
+
+            });
+
+
+        }
+
+        $(".file-upload-input").on("change", function () {
+
+            const file = this.files[0];
+
+            const container = $(this).closest(".file-upload");
+
+            const preview = container.find(".file-upload-preview");
+            const image = container.find(".file-upload-image");
+            const fileName = container.find(".file-upload-name");
+
+            if (!file) {
+                preview.hide();
+                return;
+            }
+
+            fileName.text(file.name);
+
+            if (file.type.startsWith("image/")) {
+
+                const reader = new FileReader();
+
+                reader.onload = function (e) {
+
+                    image.attr("src", e.target.result).show();
+
+                };
+
+                reader.readAsDataURL(file);
+
+            }
+            else {
+
+                image.attr("src", "").hide();
+
+            }
+
+            preview.css("display", "flex");
+
+        });
+        $(".file-upload-remove").on("click", function () {
+
+            const container = $(this).closest(".file-upload");
+
+            container.find(".file-upload-input").val("");
+
+            container.find(".file-upload-image")
+                .attr("src", "")
+                .hide();
+
+            container.find(".file-upload-name").text("");
+
+            container.find(".file-upload-preview").hide();
+
+        });
+
     </script>
 }

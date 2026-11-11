@@ -6,6 +6,8 @@
     ViewData["Title"] = "جزئیات تیکت";
     Layout = "_Layout";
 }
+  <link rel="stylesheet" href="~/css/client-ticket-details.css"
+          asp-append-version="true" />
 @{
     var canEditTicket = false;
     if (Model.Ticket is not null)
@@ -508,11 +510,11 @@
                                         class="file-upload-remove">
                                     حذف فایل
                                 </button>
+                            </div>
+
                                 <button type="submit">
                                     ارسال پاسخ
                                 </button>
-                            </div>
-
                         </div>
                     </form>
                         <!-- انتخاب فایل پاسخ -->
