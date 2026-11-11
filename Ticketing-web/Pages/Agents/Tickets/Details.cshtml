@@ -1,37 +1,37 @@
-﻿@page "{id}"
+﻿
+@page "{id}"
 @using Ticketing_web.EntityModels.Tickets
 @model Ticketing_web.Pages.Agents.Tickets.DetailsModel
+
 @{
+    ViewData["Title"] = "جزئیات تیکت";
     Layout = "_Layout";
 }
-
-@* <link rel="stylesheet"
-      href="~/css/ticket-details.css"
-      asp-append-version="true" />
-
-<div class="ticket-page" dir="rtl">
+<link href="~/css/agent-ticket-details.css" rel="stylesheet" />
+<div class="ticket-details-page" dir="rtl">
 
     <div class="page-header">
         <div>
-            <h1>جزئیات تیکت</h1>
-            <p>مشاهده اطلاعات تیکت و تاریخچه پاسخ‌ها</p>
+            <h2>جزئیات تیکت</h2>
+            <p>مشاهده اطلاعات تیکت و تاریخچه گفتگوها</p>
         </div>
 
-        <a asp-page="/Agents/Tickets/Index" class="back-button">
+        <a asp-page="/Agents/Tickets/Index"
+           class="details-button secondary-button">
             بازگشت به فهرست
         </a>
     </div>
 
     @if (!string.IsNullOrWhiteSpace(Model.Message))
     {
-        <div class="message success-message">
+        <div class="ticket-alert success-alert">
             @Model.Message
         </div>
     }
 
     @if (!string.IsNullOrWhiteSpace(Model.ErrorMessage))
     {
-        <div class="message error-message">
+        <div class="ticket-alert error-alert">
             @Model.ErrorMessage
         </div>
     }
@@ -47,529 +47,494 @@
         var ticket = Model.Ticket;
         var isInProgress = ticket.Status == TicketStatus.InProgress;
 
-        <!-- اطلاعات تیکت -->
-        <section class="panel ticket-information">
+        <div class="ticket-main">
 
-            <div class="panel-header">
-                <h2>@ticket.Title</h2>
+            <!-- 1. اطلاعات اصلی تیکت -->
+            <section class="ticket-information">
 
-                <span class="status @ticket.Status.ToString().ToLowerInvariant()">
-                    @ticket.Status
-                </span>
-            </div>
+                <div class="ticket-title-row">
+                    <div>
+                        <h3>@ticket.Title</h3>
 
-            <div class="ticket-meta">
-
-                <div class="meta-item">
-                    <span>کاربر سؤال‌کننده</span>
-                    <strong>@ticket.AskedBy</strong>
+                        
+                    </div>
                 </div>
 
-                <div class="meta-item">
-                    <span>تاریخ ثبت</span>
-                    <strong>
-                        @ticket.CreatedAt.ToString("yyyy/MM/dd HH:mm")
-                    </strong>
+                <div class="ticket-information-grid">
+
+                    <div class="ticket-field">
+                        <span>کاربر سؤال‌کننده</span>
+                        <strong>@ticket.AskedBy</strong>
+                    </div>
+
+                    <div class="ticket-field">
+                        <span>تاریخ ثبت</span>
+                        <strong>@ticket.CreatedAt.ToString("yyyy/MM/dd HH:mm")</strong>
+                    </div>
+
+                    <div class="ticket-field">
+                        <span>اولویت</span>
+                        <strong class="priority-@ticket.Priority.ToString().ToLowerInvariant()">
+                            @ticket.Priority
+                        </strong>
+                    </div>
+
+                    <div class="ticket-field">
+                        <span>وضعیت</span>
+                        <strong class="status-@ticket.Status.ToString().ToLowerInvariant()">
+                            @ticket.Status
+                        </strong>
+                    </div>
+
                 </div>
 
-                <div class="meta-item">
-                    <span>اولویت</span>
-                    <strong class="priority @ticket.Priority.ToString().ToLowerInvariant()">
-                        @ticket.Priority
-                    </strong>
+            </section>
+
+            <!-- 2. متن تیکت -->
+            <section class="ticket-information">
+
+                <div class="section-heading">
+                    <h3>متن تیکت</h3>
                 </div>
 
-                <div class="meta-item">
-                    <span>وضعیت</span>
-                    <strong class="status @ticket.Status.ToString().ToLowerInvariant()">
-                        @ticket.Status
-                    </strong>
+                <div class="ticket-content">
+                    <p>@ticket.Content</p>
                 </div>
 
-            </div>
+            </section>
 
-            <div class="ticket-content">
-                <h3>متن تیکت</h3>
-                <p>@ticket.Content</p>
-            </div>
+            <!-- 3. فایل‌های پیوست تیکت -->
+            <section class="ticket-information">
 
-        </section>
+                <div class="section-heading">
+                    <h3>فایل‌های پیوست تیکت</h3>
 
-        <!-- پاسخ‌ها -->
-        <section class="panel">
-
-            <div class="panel-header">
-                <h2>پاسخ‌های تیکت</h2>
-
-                <span class="count">
-                    @ticket.Replies.Count پاسخ
-                </span>
-            </div>
-
-            @if (ticket.Replies.Count == 0)
-            {
-                <div class="empty-state">
-                    هنوز پاسخی برای این تیکت ثبت نشده است.
+                    <span class="section-count">
+                        @(ticket.Documents?.Count ?? 0) فایل
+                    </span>
                 </div>
-            }
-            else
-            {
-                <div class="reply-list">
 
-                    @foreach (var reply in ticket.Replies.OrderBy(x => x.CreatedAt))
-                    {
-                        var isAgentReply = string.Equals(
+                @if (ticket.Documents == null || ticket.Documents.Count == 0)
+                {
+                    <div class="empty-state">
+                        فایلی برای این تیکت پیوست نشده است.
+                    </div>
+                }
+                else
+                {
+                    <div class="document-list">
+
+                        @foreach (var document in ticket.Documents)
+                        {
+                            var downloadUrl =
+                            $"https://api-ticketing.rdehghani.ir/api/storages/{document.DocumentId}/download";
+
+                            var isImage = document.Extension != null &&
+                            document.Extension.StartsWith(
+                            "image/",
+                            StringComparison.OrdinalIgnoreCase);
+
+                            <div class="document-item">
+
+                                @if (isImage)
+                                {
+                                    <a href="@downloadUrl"
+                                       target="_blank"
+                                       class="document-image-link">
+
+                                        <img src="@downloadUrl"
+                                             alt="تصویر پیوست تیکت" />
+
+                                    </a>
+                                }
+                                else
+                                {
+                                    <div class="document-file-icon">
+                                        📎
+                                    </div>
+                                }
+
+                                <a href="@downloadUrl"
+                                   target="_blank"
+                                   class="document-download">
+                                    دانلود فایل
+                                </a>
+
+                            </div>
+                        }
+
+                    </div>
+                }
+
+            </section>
+
+            <!-- 4. گفتگوها -->
+            <section class="ticket-information conversation-section">
+
+                <div class="section-heading">
+                    <h3>گفتگوها</h3>
+
+                    <span class="section-count">
+                        @(ticket.Replies?.Count ?? 0) پاسخ
+                    </span>
+                </div>
+
+                @if (ticket.Replies == null || ticket.Replies.Count == 0)
+                {
+                    <div class="empty-state">
+                        هنوز پاسخی برای این تیکت ثبت نشده است.
+                    </div>
+                }
+                else
+                {
+                    <div class="chat-container">
+
+                        @foreach (var reply in ticket.Replies.OrderBy(x => x.CreatedAt))
+                        {
+                            var isAgentReply = string.Equals(
                             reply.IssuedBy,
                             "agent",
                             StringComparison.OrdinalIgnoreCase);
 
-                        var canEdit = isInProgress
-                                      && isAgentReply
-                                      && !reply.ApprovedByAdmin;
+                            var canEdit = isInProgress
+                            && isAgentReply
+                            && !reply.ApprovedByAdmin;
 
-                        <article class="reply-card">
+                            <article class="message-row @(isAgentReply ? "agent-message" : "client-message")">
 
-                            <div class="reply-header">
-                                <div>
-                                    <h3>@reply.Mobile</h3>
+                                <div class="message-bubble">
 
-                                    <span class="reply-date">
-                                        @reply.CreatedAt.ToString("yyyy/MM/dd HH:mm")
-                                    </span>
-                                </div>
+                                    <!-- سربرگ پاسخ -->
+                                    <div class="message-header">
 
-                                <div class="reply-badges">
-                                    <span class="issued-by">
-                                        @reply.IssuedBy
-                                    </span>
+                                        <div class="message-sender">
+                                            <strong>@reply.Mobile</strong>
 
-                                    @if (reply.ApprovedByAdmin)
-                                    {
-                                        <span class="approval approved">
-                                            تأیید شده توسط ادمین
-                                        </span>
-                                    }
-                                    else
-                                    {
-                                        <span class="approval pending">
-                                            در انتظار تأیید
-                                        </span>
-                                    }
-                                </div>
-                            </div>
+                                            <span class="message-role">
+                                                @(isAgentReply ? "کارشناس" : "کاربر")
+                                            </span>
+                                        </div>
 
-                            <div class="reply-content">
-                                @reply.Content
-                            </div>
+                                        <div class="reply-badges">
 
-                            @if (canEdit)
-                            {
-                                <div class="reply-actions">
-                                    <button type="button"
-                                            class="btn btn-secondary"
-                                            onclick="showEditForm('@reply.Id')">
-                                        ویرایش پاسخ
-                                    </button>
-                                </div>
+                                            @if (isAgentReply)
+                                            {
+                                                @if (reply.ApprovedByAdmin)
+                                                {
+                                                    <span class="approval-badge approved-badge">
+                                                        تأیید شده
+                                                    </span>
+                                                }
+                                                else
+                                                {
+                                                    <span class="approval-badge pending-badge">
+                                                        در انتظار تأیید
+                                                    </span>
+                                                }
+                                            }
+                                            else
+                                            {
+                                                <span class="approval-badge client-badge">
+                                                    پاسخ کاربر
+                                                </span>
+                                            }
 
-                                <form method="post"
-                                      asp-page-handler="EditReply"
-                                      asp-route-id="@Model.Id"
-                                      asp-route-replyId="@reply.Id"
-                                      class="edit-form hidden"
-                                      id="editForm-@reply.Id">
+                                        </div>
 
-                                    <input type="hidden"
-                                           name="ReplyId"
-                                           value="@reply.Id" />
-
-                                    <div class="form-group">
-                                        <label for="content-@reply.Id">
-                                            متن پاسخ
-                                        </label>
-
-                                        <textarea id="content-@reply.Id"
-                                                  name="EditedContent"
-                                                  class="form-control"
-                                                  rows="5"
-                                                  required
-                                                  maxlength="5000">@reply.Content</textarea>
                                     </div>
 
-                                    <div class="form-actions">
-                                        <button type="submit"
-                                                class="btn btn-primary">
-                                            ذخیره تغییرات
-                                        </button>
-
-                                        <button type="button"
-                                                class="btn btn-secondary"
-                                                onclick="hideEditForm('@reply.Id')">
-                                            انصراف
-                                        </button>
+                                    <!-- متن پاسخ -->
+                                    <div class="message-text">
+                                        @reply.Content
                                     </div>
-                                </form>
-                            }
-                            else if (reply.ApprovedByAdmin && isAgentReply)
-                            {
-                                <div class="reply-actions">
-                                    <button type="button"
-                                            class="btn btn-disabled"
-                                            disabled>
-                                        پاسخ تأیید شده؛ ویرایش غیرفعال
-                                    </button>
-                                </div>
-                            }
 
-                        </article>
-                    }
-
-                </div>
-            }
-
-            <!-- فرم ثبت پاسخ فقط وقتی تیکت پاسخی ندارد -->
-            @if (isInProgress && ticket.Replies.Count == 0)
-            {
-                <div class="new-reply-section">
-                    <h3>ثبت پاسخ جدید</h3>
-
-                    <form method="post"
-                          asp-page-handler="Reply"
-                          asp-route-id="@Model.Id">
-
-                        <div class="form-group">
-                            <label for="replyContent">متن پاسخ</label>
-
-                            <textarea id="replyContent"
-                                      name="ReplyContent"
-                                      class="form-control"
-                                      rows="6"
-                                      required
-                                      minlength="2"
-                                      maxlength="5000"
-                                      placeholder="پاسخ خود را وارد کنید..."></textarea>
-                        </div>
-
-                        <div class="form-actions">
-                            <button type="submit" class="btn btn-success">
-                                ثبت پاسخ
-                            </button>
-                        </div>
-
-                    </form>
-                </div>
-            }
-            else if (!isInProgress)
-            {
-                <div class="empty-state">
-                    به دلیل وضعیت فعلی تیکت، امکان ثبت یا ویرایش پاسخ وجود ندارد.
-                </div>
-            }
-
-        </section>
-    }
-</div>
-
-@section Scripts {
-    <script>
-        function showEditForm(replyId) {
-            const form = document.getElementById("editForm-" + replyId);
-
-            if (form) {
-                form.classList.remove("hidden");
-                form.scrollIntoView({
-                    behavior: "smooth",
-                    block: "center"
-                });
-            }
-        }
-
-        function hideEditForm(replyId) {
-            const form = document.getElementById("editForm-" + replyId);
-
-            if (form) {
-                form.classList.add("hidden");
-            }
-        }
-    </script>
-}
- *@
-
-
-
-<div class="ticket-page" dir="rtl">
-
-    <div class="page-header">
-        <div>
-            <h1>جزئیات تیکت</h1>
-            <p>مشاهده اطلاعات تیکت و تاریخچه پاسخ‌ها</p>
-        </div>
-
-        <a asp-page="/Agents/Tickets/Index" class="back-button">
-            بازگشت به فهرست
-        </a>
-    </div>
-
-    @if (!string.IsNullOrWhiteSpace(Model.Message))
-    {
-        <div class="message success-message">
-            @Model.Message
-        </div>
-    }
-
-    @if (!string.IsNullOrWhiteSpace(Model.ErrorMessage))
-    {
-        <div class="message error-message">
-            @Model.ErrorMessage
-        </div>
-    }
-
-    @if (Model.Ticket == null)
-    {
-        <div class="empty-state">
-            اطلاعات تیکت دریافت نشد.
-        </div>
-    }
-    else
-    {
-        var ticket = Model.Ticket;
-        var isInProgress = ticket.Status == TicketStatus.InProgress;
-
-        <!-- اطلاعات تیکت -->
-        <section class="panel ticket-information">
-
-            <div class="panel-header">
-                <h2>@ticket.Title</h2>
-
-                <span class="status @ticket.Status.ToString().ToLowerInvariant()">
-                    @ticket.Status
-                </span>
-            </div>
-
-            <div class="ticket-meta">
-
-                <div class="meta-item">
-                    <span>کاربر سؤال‌کننده</span>
-                    <strong>@ticket.AskedBy</strong>
-                </div>
-
-                <div class="meta-item">
-                    <span>تاریخ ثبت</span>
-                    <strong>
-                        @ticket.CreatedAt.ToString("yyyy/MM/dd HH:mm")
-                    </strong>
-                </div>
-
-                <div class="meta-item">
-                    <span>اولویت</span>
-                    <strong class="priority @ticket.Priority.ToString().ToLowerInvariant()">
-                        @ticket.Priority
-                    </strong>
-                </div>
-
-                <div class="meta-item">
-                    <span>وضعیت</span>
-                    <strong class="status @ticket.Status.ToString().ToLowerInvariant()">
-                        @ticket.Status
-                    </strong>
-                </div>
-
-            </div>
-
-            <div class="ticket-content">
-                <h3>متن تیکت</h3>
-                <p>@ticket.Content</p>
-            </div>
-
-        </section>
-
-        <!-- تاریخچه پاسخ‌ها -->
-        <section class="panel">
-
-            <div class="panel-header">
-                <h2>پاسخ‌های تیکت</h2>
-
-                <span class="count">
-                    @(ticket.Replies?.Count ?? 0) پاسخ
-                </span>
-            </div>
-
-            @if (ticket.Replies == null || ticket.Replies.Count == 0)
-            {
-                <div class="empty-state">
-                    هنوز پاسخی برای این تیکت ثبت نشده است.
-                </div>
-            }
-            else
-            {
-                <div class="reply-list">
-
-                    @foreach (var reply in ticket.Replies.OrderBy(x => x.CreatedAt))
-                    {
-                        var isAgentReply = string.Equals(
-                            reply.IssuedBy,
-                            "agent",
-                            StringComparison.OrdinalIgnoreCase);
-
-                        var canEdit = isInProgress
-                                      && isAgentReply
-                                      && !reply.ApprovedByAdmin;
-
-                        <article class="reply-card">
-
-                            <div class="reply-header">
-                                <div>
-                                    <h3>@reply.Mobile</h3>
-
-                                    <span class="reply-date">
-                                        @reply.CreatedAt.ToString("yyyy/MM/dd HH:mm")
-                                    </span>
-                                </div>
-
-                                <div class="reply-badges">
-
-                                    <span class="issued-by">
-                                        @reply.IssuedBy
-                                    </span>
-
-                                    @if (reply.ApprovedByAdmin)
+                                    <!-- فایل‌های پیوست پاسخ -->
+                                    @if (reply.Documents != null && reply.Documents.Count > 0)
                                     {
-                                        <span class="approval approved">
-                                            تأیید شده توسط ادمین
-                                        </span>
+                                        <div class="reply-documents">
+
+                                            @foreach (var document in reply.Documents)
+                                            {
+                                                var downloadUrl =
+                                                $"https://api-ticketing.rdehghani.ir/api/storages/{document.DocumentId}/download";
+
+                                                var isImage = document.Extension != null &&
+                                                document.Extension.StartsWith(
+                                                "image/",
+                                                StringComparison.OrdinalIgnoreCase);
+
+                                                <div class="reply-document-item">
+
+                                                    @if (isImage)
+                                                    {
+                                                        <a href="@downloadUrl"
+                                                           target="_blank"
+                                                           class="reply-document-image">
+
+                                                            <img src="@downloadUrl"
+                                                                 alt="تصویر پیوست پاسخ" />
+
+                                                        </a>
+                                                    }
+                                                    else
+                                                    {
+                                                        <div class="reply-file-placeholder">
+                                                            📎
+                                                            <span>فایل پیوست</span>
+                                                        </div>
+                                                    }
+
+                                                    <a href="@downloadUrl"
+                                                       target="_blank"
+                                                       class="document-download">
+                                                        دانلود فایل
+                                                    </a>
+
+                                                    @if (canEdit)
+                                                     {
+                                                         
+                                                    
+                                                         <form method="post"
+                                                               asp-page-handler="DeleteTicketReplyDocument"
+                                                               asp-route-TicketId="@Model.Id"
+                                                               asp-route-replyId="@reply.Id"
+                                                               asp-route-documentId="@document.DocumentId"
+                                                               class="delete-document-form">
+                                                             <button type="submit" class="delete-attachment-button" title="حذف فایل">
+                                                                 ×
+                                                             </button>
+                                                         </form>
+                                                     }
+                                                </div>
+                                            }
+
+                                        </div>
                                     }
-                                    else
-                                    {
-                                        <span class="approval pending">
-                                            در انتظار تأیید
+
+                                    <!-- تاریخ پاسخ -->
+                                    <div class="message-footer">
+                                        <span class="message-time">
+                                            @reply.CreatedAt.ToString("yyyy/MM/dd HH:mm")
                                         </span>
+                                    </div>
+
+                                    <!-- ویرایش پاسخ Agent -->
+                                    @if (canEdit)
+                                    {
+                                        <div class="reply-admin-actions">
+
+                                            <button type="button"
+                                                    class="details-button secondary-button"
+                                                    onclick="showEditForm('@reply.Id')">
+                                                ویرایش پاسخ
+                                            </button>
+
+                                        </div>
+                                        <!-- فرم ویرایش پاسخ -->
+                                        <form method="post"
+                                              asp-page-handler="EditReply"
+                                              asp-route-id="@Model.Id"
+                                              asp-route-replyId="@reply.Id"
+                                              id="editForm-@reply.Id"
+                                              class="reply-edit-form hidden"
+                                              enctype="multipart/form-data">
+
+                                            <input type="hidden"
+                                                   name="ReplyId"
+                                                   value="@reply.Id" />
+
+                                            <!-- متن پاسخ -->
+                                            <div class="form-group">
+
+                                                <label for="content-@reply.Id">
+                                                    متن پاسخ
+                                                </label>
+
+                                                <textarea id="content-@reply.Id"
+                                                          name="EditedContent"
+                                                          rows="4"
+                                                          required
+                                                          minlength="2"
+                                                          maxlength="5000">@reply.Content</textarea>
+
+                                            </div>
+
+                                            
+
+                                            <!-- افزودن فایل جدید -->
+                                            <div class="file-upload">
+
+                                                <label>افزودن فایل پیوست</label>
+
+                                                <input type="file"
+                                                       id="reply-edit-file-@reply.Id"
+                                                       asp-for="Document"
+                                                       accept="image/*,.pdf,.doc,.docx,.xls,.xlsx,.zip,.rar"
+                                                       class="file-upload-input" />
+
+                                                <label for="reply-edit-file-@reply.Id"
+                                                       class="file-upload-box">
+
+                                                    <span>📎</span>
+                                                    <span>برای انتخاب فایل یا تصویر کلیک کنید</span>
+
+                                                </label>
+
+                                                <div class="file-upload-preview">
+
+                                                    <img class="file-upload-image"
+                                                         src=""
+                                                         alt="پیش‌نمایش" />
+
+                                                    <span class="file-upload-name"></span>
+
+                                                    <button type="button"
+                                                            class="file-upload-remove">
+                                                        حذف فایل
+                                                    </button>
+
+                                                </div>
+
+                                            </div>
+
+                                            <div class="form-actions">
+
+                                                <button type="submit"
+                                                        class="details-button primary-button">
+                                                    ذخیره تغییرات
+                                                </button>
+
+                                                <button type="button"
+                                                        class="details-button secondary-button"
+                                                        onclick="hideEditForm('@reply.Id')">
+                                                    انصراف
+                                                </button>
+
+                                            </div>
+
+                                        </form>
+                                    }
+                                    else if (isAgentReply && reply.ApprovedByAdmin)
+                                    {
+                                        <div class="reply-readonly-label">
+                                            این پاسخ توسط ادمین تأیید شده و امکان ویرایش آن وجود ندارد.
+                                        </div>
+                                    }
+                                    else if (isAgentReply && !isInProgress)
+                                    {
+                                        <div class="reply-readonly-label">
+                                            به دلیل وضعیت فعلی تیکت، امکان ویرایش این پاسخ وجود ندارد.
+                                        </div>
                                     }
 
                                 </div>
-                            </div>
 
-                            <div class="reply-content">
-                                @reply.Content
-                            </div>
+                            </article>
+                        }
 
-                            @if (canEdit)
-                            {
-                                <div class="reply-actions">
-                                    <button type="button"
-                                            class="btn btn-secondary"
-                                            onclick="showEditForm('@reply.Id')">
-                                        ویرایش پاسخ
-                                    </button>
-                                </div>
+                    </div>
+                }
 
-                                <form method="post"
-                                      asp-page-handler="EditReply"
-                                      asp-route-id="@Model.Id"
-                                      asp-route-replyId="@reply.Id"
-                                      class="edit-form hidden"
-                                      id="editForm-@reply.Id">
+            </section>
 
-                                    <input type="hidden"
-                                           name="ReplyId"
-                                           value="@reply.Id" />
-
-                                    <div class="form-group">
-                                        <label for="content-@reply.Id">
-                                            متن پاسخ
-                                        </label>
-
-                                        <textarea id="content-@reply.Id"
-                                                  name="EditedContent"
-                                                  class="form-control"
-                                                  rows="5"
-                                                  required
-                                                  minlength="2"
-                                                  maxlength="5000">@reply.Content</textarea>
-                                    </div>
-
-                                    <div class="form-actions">
-                                        <button type="submit"
-                                                class="btn btn-primary">
-                                            ذخیره تغییرات
-                                        </button>
-
-                                        <button type="button"
-                                                class="btn btn-secondary"
-                                                onclick="hideEditForm('@reply.Id')">
-                                            انصراف
-                                        </button>
-                                    </div>
-
-                                </form>
-                            }
-                            else if (isAgentReply && reply.ApprovedByAdmin)
-                            {
-                                <div class="reply-actions">
-                                    <button type="button"
-                                            class="btn btn-disabled"
-                                            disabled>
-                                        پاسخ تأیید شده؛ ویرایش غیرفعال
-                                    </button>
-                                </div>
-                            }
-
-                        </article>
-                    }
-
-                </div>
-            }
-
-            <!-- ثبت پاسخ جدید -->
-            <!-- پاسخ جدید به وجود یا تعداد پاسخ‌های قبلی وابسته نیست -->
+            <!-- 5. ثبت پاسخ جدید -->
             @if (isInProgress)
             {
-                <div class="new-reply-section">
+                <section class="ticket-information">
 
-                    <h3>ثبت پاسخ جدید</h3>
+                    <div class="section-heading">
+                        <h3>ثبت پاسخ جدید</h3>
+                    </div>
 
                     <form method="post"
                           asp-page-handler="Reply"
-                          asp-route-id="@Model.Id">
+                          asp-route-id="@Model.Id"
+                          enctype="multipart/form-data">
 
                         <div class="form-group">
+
                             <label for="replyContent">
                                 متن پاسخ
                             </label>
 
                             <textarea id="replyContent"
                                       name="ReplyContent"
-                                      class="form-control"
-                                      rows="6"
+                                      rows="5"
                                       required
                                       minlength="2"
                                       maxlength="5000"
-                                      placeholder="پاسخ جدید خود را وارد کنید..."></textarea>
+                                      placeholder="پاسخ خود را وارد کنید..."></textarea>
+
                         </div>
 
+                        <div class="file-upload">
+
+                            <label>فایل پیوست</label>
+
+                            <input type="file"
+                                   id="replyFile"
+                                   asp-for="Document"
+                                   class="file-upload-input" />
+
+                            <label for="replyFile"
+                                   class="file-upload-box">
+
+                                <span>📎</span>
+                                <span>برای انتخاب فایل یا تصویر کلیک کنید</span>
+
+                            </label>
+
+                            <div class="file-upload-preview">
+
+                                <img class="file-upload-image"
+                                     src=""
+                                     alt="پیش‌نمایش" />
+
+                                <span class="file-upload-name"></span>
+
+                                <button type="button"
+                                        class="file-upload-remove">
+                                    حذف فایل
+                                </button>
+                            </div>
+                         </div>
                         <div class="form-actions">
-                            <button type="submit" class="btn btn-success">
-                                ثبت پاسخ جدید
+
+                            <button type="submit"
+                                    class="details-button primary-button">
+                                ثبت پاسخ
                             </button>
+
                         </div>
 
                     </form>
 
-                </div>
+                </section>
             }
             else
             {
-                <div class="empty-state">
-                    به دلیل وضعیت فعلی تیکت، امکان ثبت پاسخ جدید یا ویرایش پاسخ‌ها وجود ندارد.
-                </div>
+                <section class="ticket-information">
+
+                    <div class="empty-state">
+                        به دلیل وضعیت فعلی تیکت، امکان ثبت پاسخ جدید یا ویرایش پاسخ‌ها وجود ندارد.
+                    </div>
+
+                </section>
             }
 
-        </section>
+        </div>
     }
+
 </div>
 
 @section Scripts {
+
+    <partial name="_ValidationScriptsPartial" />
+
     <script>
+
         function showEditForm(replyId) {
+
             const form = document.getElementById("editForm-" + replyId);
 
             if (form) {
@@ -583,11 +548,68 @@
         }
 
         function hideEditForm(replyId) {
-            const form = document.getElementById("editForm-" + replyId);
 
-            if (form) {
-                form.classList.add("hidden");
-            }
+            document.getElementById("editForm-" + replyId)
+                ?.classList.add("hidden");
         }
+
+        
+
+    
+
+        $(".file-upload-input").on("change", function () {
+
+            const file = this.files[0];
+
+            const container = $(this).closest(".file-upload");
+
+            const preview = container.find(".file-upload-preview");
+            const image = container.find(".file-upload-image");
+            const fileName = container.find(".file-upload-name");
+
+            if (!file) {
+                preview.hide();
+                return;
+            }
+
+            fileName.text(file.name);
+
+            if (file.type.startsWith("image/")) {
+
+                const reader = new FileReader();
+
+                reader.onload = function (e) {
+
+                    image.attr("src", e.target.result).show();
+
+                };
+
+                reader.readAsDataURL(file);
+
+            }
+            else {
+
+                image.attr("src", "").hide();
+
+            }
+
+            preview.css("display", "flex");
+
+        });
+        $(".file-upload-remove").on("click", function () {
+
+            const container = $(this).closest(".file-upload");
+
+            container.find(".file-upload-input").val("");
+
+            container.find(".file-upload-image")
+                .attr("src", "")
+                .hide();
+
+            container.find(".file-upload-name").text("");
+
+            container.find(".file-upload-preview").hide();
+
+        });
     </script>
 }

@@ -1,6 +1,8 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using Ticketing_web.EntityModels.Documents;
 using Ticketing_web.EntityModels.Tickets;
+using Ticketing_web.Services.FileStorage;
 using Ticketing_web.Services.Replies;
 using Ticketing_web.Services.Tickets;
 
@@ -11,6 +13,7 @@ public class DetailsModel : PageModel
 
     private readonly ITicketService _ticketService;
     private readonly ITicketReplyService _replyService;
+    private readonly IFileService _fileService;
     public GetAgentTicketDetailsDto? Ticket { get; private set; }
 
     public string Id { get; private set; } = string.Empty;
@@ -19,12 +22,16 @@ public class DetailsModel : PageModel
 
     public string? ErrorMessage { get; private set; }
 
+    [BindProperty]
+    public IFormFile? Document { get; set; }
     public DetailsModel(
         ITicketService ticketService,
-        ITicketReplyService replyService)
+        ITicketReplyService replyService,
+        IFileService fileService)
     {
         _ticketService = ticketService;
         _replyService = replyService;
+        _fileService = fileService;
     }
 
     public async Task<IActionResult> OnGetAsync(string id)
@@ -74,23 +81,22 @@ public class DetailsModel : PageModel
             return Page();
         }
 
-        var reply = Ticket.Replies.FirstOrDefault(x => x.Id == replyId);
-
-        if (reply == null)
+        DocumentDto? document = null;
+        if (Document != null && Document.Length > 0)
         {
-            ErrorMessage = "پاسخ موردنظر پیدا نشد.";
-            return Page();
-        }
+            document = await UploadFile(Document);
+            if (document == null)
+            {
+                await LoadTicketAsync();
+                return Page();
+            }
+            var addFile = await _replyService.AddFile(replyId, document);
 
-        var isAgentReply = string.Equals(
-            reply.IssuedBy,
-            "agent",
-            StringComparison.OrdinalIgnoreCase);
-
-        if (!isAgentReply || reply.ApprovedByAdmin)
-        {
-            ErrorMessage = "این پاسخ قابل ویرایش نیست.";
-            return Page();
+            if (addFile is null || !addFile.IsSuccess)
+            {
+                ErrorMessage = addFile?.Error ?? "ثبت فایل ناموفق بود.";
+                return Page();
+            }
         }
 
         var result = await _replyService.EditReply(
@@ -109,6 +115,54 @@ public class DetailsModel : PageModel
         return RedirectToPage("./Details", new { Id });
     }
 
+    
+    
+    public async Task<IActionResult> OnPostDeleteTicketReplyDocument(
+        string ticketId,
+        string replyId,
+        string documentId
+        )
+    {
+        if (string.IsNullOrWhiteSpace(replyId))
+        {
+            return NotFound();
+        }
+        Id = ticketId;
+        if (string.IsNullOrWhiteSpace(documentId))
+        {
+            ErrorMessage = "خطایی در ارسال اطلاعات پیش آمده.";
+            await LoadTicketAsync();
+            return Page();
+        }
+        await LoadTicketAsync();
+
+        if (Ticket == null)
+        {
+            ErrorMessage = "تیکت پیدا نشد.";
+            return Page();
+        }
+        var removeResult = await _fileService.Delete(documentId);
+        if (!removeResult.IsSuccess)
+        {
+            ErrorMessage = removeResult?.Error ?? "حذف فایل ناموفق بود.";
+            await LoadTicketAsync();
+            return Page();
+        }
+
+        var result = await _replyService.DeleteDocument(documentId);
+
+        if (result is null || !result.IsSuccess)
+        {
+            ErrorMessage = result?.Error ?? "حذف فایل ناموفق بود.";
+
+            await LoadTicketAsync();
+
+            return Page();
+        }
+        TempData["Message"] = "فایل پیوست پاسخ با موفقیت حذف شد.";
+
+        return RedirectToPage("./Details", new { id = Id });
+    }
     private async Task LoadTicketAsync()
     {
         Message = TempData["Message"] as string;
@@ -123,6 +177,7 @@ public class DetailsModel : PageModel
         }
 
         Ticket = result.Data;
+        Ticket.Documents=result.Data.Documents;
     }
 
 
@@ -159,11 +214,22 @@ public class DetailsModel : PageModel
             ErrorMessage = "وضعیت تیکت اجازه ثبت پاسخ نمی‌دهد.";
             return Page();
         }
+        DocumentDto? document = null;
+        if (Document != null && Document.Length > 0)
+        {
+            document = await UploadFile(Document);
+            if (document == null)
+            {
+                await LoadTicketAsync();
+                return Page();
+            }
 
+        }
 
         var result = await _replyService.ReplyTicket(
             id,
-            replyContent);
+            replyContent,
+            document);
 
         if (result == null || !result.IsSuccess)
         {
@@ -176,6 +242,22 @@ public class DetailsModel : PageModel
 
         return RedirectToPage("./Details", new { id });
     }
+    private async Task<DocumentDto?> UploadFile(IFormFile? file)
+    {
+        if (file == null)
+            return null;
+        var fileResult = await _fileService.Upload(file);
 
+        if (fileResult is null || !fileResult.IsSuccess || fileResult.Data == null)
+        {
+            ErrorMessage = fileResult?.Error ?? "آپلود فایل ناموفق بود.";
+            return null;
+        }
+        return new DocumentDto
+        {
+            DocumentId = fileResult.Data.DocumentId,
+            Extension = fileResult.Data.Extension
+        };
+    }
 
 }
