@@ -109,11 +109,7 @@ public class DetailsModel : PageModel
         await LoadTicketAsync();
         return Ticket;
     }
-    private IActionResult RedirectToPageWithError(string message)
-    {
-        ErrorMessage = message;
-        return RedirectToPage(new { id = Id });
-    }
+ 
 
     private async Task LoadTicketAsync()
     {
